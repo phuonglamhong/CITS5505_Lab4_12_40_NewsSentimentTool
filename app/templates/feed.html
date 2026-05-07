@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Media Feed — BrandPulse{% endblock %}
+
+{% block content %}
+<div class="container-fluid app-shell">
+  <div class="row g-0">
+
+    <!-- SIDEBAR -->
+    <aside class="col-lg-3 col-xl-2 sidebar">
+      <div class="brand-lockup">
+        <div class="brand-icon"><i class="fa-solid fa-wave-square"></i></div>
+        <div>
+          <h1>BrandPulse</h1>
+          <p>News Sentiment Monitor</p>
+        </div>
+      </div>
+
+      <p class="sidebar-heading">Workspace</p>
+      <nav class="sidebar-nav">
+        <a class="nav-link-custom" href="{{ url_for('dashboard') }}">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-link-custom active" href="{{ url_for('feed') }}">
+          <i class="fa-regular fa-newspaper"></i>
+          <span>Media Feed</span>
+        </a>
+        <a class="nav-link-custom" href="#">
+          <i class="fa-solid fa-scale-balanced"></i>
+          <span>Competitors</span>
+        </a>
+        <a class="nav-link-custom" href="#">
+          <i class="fa-regular fa-comments"></i>
+          <span>Team Notes</span>
+        </a>
+      </nav>
+
+      <p class="sidebar-heading">Management</p>
+      <nav class="sidebar-nav">
+        <a class="nav-link-custom" href="#">
+          <i class="fa-solid fa-bell"></i>
+          <span>Alerts</span>
+        </a>
+        <a class="nav-link-custom" href="#">
+          <i class="fa-solid fa-user-shield"></i>
+          <span>Admin Panel</span>
+        </a>
+        <a class="nav-link-custom" href="{{ url_for('index') }}">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Sign Out</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-note">
+        <h2>Signal Review</h2>
+        <p>Filter articles by sentiment and source to quickly investigate what is shaping the current brand narrative.</p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="col-lg-9 col-xl-10 main-content">
+
+      <!-- TOPBAR -->
+      <section class="topbar">
+        <div class="page-title">
+          <div class="page-kicker">
+            <i class="fa-regular fa-newspaper"></i>
+            Media Monitoring Workspace
+          </div>
+          <h2>Media Feed</h2>
+          <p>Browse recent coverage, compare sentiment patterns, and move directly into article-level review.</p>
+        </div>
+        <div class="topbar-actions">
+          <form method="GET" action="{{ url_for('feed') }}" style="display:contents;">
+            <label class="search-box" aria-label="Search articles">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" name="q" placeholder="Search title, source, or keyword..."
+                     value="{{ search_query }}" />
+            </label>
+            <div class="topbar-meta">
+              <div class="meta-chip">
+                <i class="fa-solid fa-bolt"></i>
+                <span>{{ counts.total }} indexed stories</span>
+              </div>
+              <div class="meta-avatar">
+                {{ current_user.name[:2].upper() if current_user and current_user.is_authenticated else 'AC' }}
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <div class="content-grid">
+
+        <!-- STAT CARDS -->
+        <!-- Checkpoint 3: counts passed from Flask route -->
+        <section class="stat-grid">
+          <article class="panel stat-card">
+            <div class="stat-head">
+              <span>Total Articles</span>
+              <div class="stat-icon icon-primary">
+                <i class="fa-regular fa-newspaper"></i>
+              </div>
+            </div>
+            <h3>{{ counts.total }}</h3>
+            <p>All articles currently indexed across selected media outlets.</p>
+          </article>
+
+          <article class="panel stat-card">
+            <div class="stat-head">
+              <span>Positive</span>
+              <div class="stat-icon icon-success">
+                <i class="fa-regular fa-face-smile"></i>
+              </div>
+            </div>
+            <h3>{{ counts.positive }}</h3>
+            <p>Coverage emphasizing growth, partnerships, product wins, and earnings strength.</p>
+          </article>
+
+          <article class="panel stat-card">
+            <div class="stat-head">
+              <span>Neutral</span>
+              <div class="stat-icon icon-warning">
+                <i class="fa-regular fa-face-meh"></i>
+              </div>
+            </div>
+            <h3>{{ counts.neutral }}</h3>
+            <p>Balanced reporting with mixed interpretation and limited reputational impact.</p>
+          </article>
+
+          <article class="panel stat-card">
+            <div class="stat-head">
+              <span>Negative</span>
+              <div class="stat-icon icon-danger">
+                <i class="fa-regular fa-face-frown"></i>
+              </div>
+            </div>
+            <h3>{{ counts.negative }}</h3>
+            <p>Risk-focused reporting requiring closer monitoring and possible communication response.</p>
+          </article>
+        </section>
+
+        <!-- FILTER TOOLBAR -->
+        <section class="feed-toolbar">
+          <div class="filter-tabs" role="tablist">
+            {% for f in [('all','All'),('positive','Positive'),('neutral','Neutral'),('negative','Negative')] %}
+              <a href="{{ url_for('feed', sentiment=f[0], source=active_source, q=search_query) }}"
+                 class="filter-tab {% if active_filter == f[0] %}active{% endif %}"
+                 role="tab">{{ f[1] }}</a>
+            {% endfor %}
+          </div>
+          <div class="toolbar-actions">
+            <form method="GET" action="{{ url_for('feed') }}">
+              <input type="hidden" name="sentiment" value="{{ active_filter }}">
+              <input type="hidden" name="q" value="{{ search_query }}">
+              <label class="select-box" aria-label="Filter by source">
+                <i class="fa-solid fa-filter"></i>
+                <select name="source" onchange="this.form.submit()">
+                  <option value="" {% if not active_source %}selected{% endif %}>All Sources</option>
+                  {% for src in ['Reuters','BBC','Bloomberg','TechCrunch','Financial Times','The Verge'] %}
+                    <option value="{{ src }}" {% if active_source == src %}selected{% endif %}>{{ src }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </form>
+          </div>
+        </section>
+
+        <!-- ARTICLE LIST -->
+        <!-- Checkpoint 3: articles passed from Flask route via Article model -->
+        <section class="feed-list">
+          {% if articles %}
+            {% for article in articles %}
+              <article class="panel feed-card">
+                <div class="feed-meta">
+                  <div class="feed-source">
+                    <div class="feed-source-logo">
+                      <i class="fa-solid fa-newspaper"></i>
+                    </div>
+                    <div>
+                      <strong>{{ article.source }}</strong>
+                      <div class="mini-count">Published {{ article.date }}</div>
+                    </div>
+                  </div>
+                  {% if article.sentiment == 'positive' %}
+                    <span class="badge-sentiment badge-positive">
+                      <i class="fa-solid fa-circle"></i>Positive
+                    </span>
+                  {% elif article.sentiment == 'negative' %}
+                    <span class="badge-sentiment badge-negative">
+                      <i class="fa-solid fa-circle"></i>Negative
+                    </span>
+                  {% else %}
+                    <span class="badge-sentiment badge-neutral">
+                      <i class="fa-solid fa-circle"></i>Neutral
+                    </span>
+                  {% endif %}
+                </div>
+                <h3>{{ article.title }}</h3>
+                <p>{{ article.preview }}</p>
+                <div class="feed-footer">
+                  <div class="feed-tags">
+                    <span class="score-pill">Score {{ article.score }}</span>
+                    <span class="mini-count">{{ article.source }}</span>
+                  </div>
+                  <a class="text-link" href="#">View Analysis</a>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            <div style="text-align:center; padding:3rem; color:var(--text-secondary);">
+              <i class="fa-regular fa-newspaper" style="font-size:2rem; margin-bottom:1rem; display:block;"></i>
+              <p>No articles match your filters. <a href="{{ url_for('feed') }}">Clear filters</a></p>
+            </div>
+          {% endif %}
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+{% endblock %}
