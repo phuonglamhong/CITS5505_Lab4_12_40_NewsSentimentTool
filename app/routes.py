@@ -71,3 +71,8 @@ def login():
         return jsonify({"status": "success", "message": "Login OK!"})
     else:
         return jsonify({"status": "error", "message": "Invalid email or password."})
+    
+
+@app.route("/competitor")
+def competitor_page():
+    return render_template("competitor.html")
