@@ -1,0 +1,162 @@
+<!-- Login Page -->
+{% extends "base.html" %} {% block title %}NewsSentiment — Sign In{% endblock %}
+{% block body_class %}login-page{% endblock %} {% block content %}
+<div class="login-card">
+  <div class="login-logo">News<span>Sentiment</span></div>
+  <p class="login-subtitle">News sentiment intelligence platform</p>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="authTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="signin-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#signin"
+        type="button"
+        role="tab"
+      >
+        Sign In
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="register-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#register"
+        type="button"
+        role="tab"
+      >
+        Register
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="authTabContent">
+    <!-- Sign In -->
+    <div class="tab-pane fade show active" id="signin" role="tabpanel">
+      <!-- JS-driven login error -->
+      <div id="login-error" class="alert alert-danger d-none"></div>
+      {% if login_error %}
+      <div class="alert alert-danger">{{ login_error }}</div>
+      {% endif %}
+
+      <form id="login-form" novalidate>
+        <div class="mb-3">
+          <label for="login-email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="login-email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="login-password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="login-password"
+            placeholder="Enter password"
+            required
+          />
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="rememberMe" />
+            <label
+              class="form-check-label text-muted"
+              for="rememberMe"
+              style="font-size: 0.85rem"
+            >
+              Remember me
+            </label>
+          </div>
+          <a href="#" style="font-size: 0.85rem">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Sign In</button>
+      </form>
+    </div>
+
+    <!-- Register -->
+    <div class="tab-pane fade" id="register" role="tabpanel">
+      <!-- JS-driven alerts -->
+      <div id="register-error" class="alert alert-danger d-none"></div>
+      <div id="register-success" class="alert alert-success d-none"></div>
+      {% if register_error %}
+      <div class="alert alert-danger">{{ register_error }}</div>
+      {% endif %} {% if register_success %}
+      <div class="alert alert-success">{{ register_success }}</div>
+      {% endif %}
+
+      <form id="register-form" novalidate>
+        <div class="mb-3">
+          <label for="reg-name" class="form-label">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="reg-name"
+            placeholder="Alex Chen"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="reg-email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="reg-email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="reg-role" class="form-label">Role</label>
+          <select class="form-select" id="reg-role">
+            {% for role in ["analyst", "manager", "viewer"] %}
+            <option value="{{ role }}">{{ role|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="reg-password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="reg-password"
+            placeholder="Min. 8 characters"
+            required
+            minlength="8"
+          />
+          <div class="form-text">Must be at least 8 characters.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="reg-confirm" class="form-label">Confirm Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="reg-confirm"
+            placeholder="Repeat password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+          Create Account
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}
