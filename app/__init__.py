@@ -4,6 +4,7 @@ It also imports the necessary routes and models to be used in the application.
 """
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from app.routes import competitor
 
 db = SQLAlchemy()
 
