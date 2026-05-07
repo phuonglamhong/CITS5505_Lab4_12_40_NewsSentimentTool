@@ -5,9 +5,21 @@ The routes include:
 - "/" for rendering the login page
 - "/register" for handling user registration
 - "/login" for handling user login
-The registration route validates the email format and checks for existing users before creating a new user with a hashed password. The login route checks the provided credentials against the stored user data.
+- "/logout" for handling user logout
+- "/dashboard" for rendering the user dashboard (protected route)
+
+The registration route validates the email format and checks for existing users
+before creating a new user with a hashed password. The login route checks the
+provided credentials against the stored user data.
+
+CSRF protection is enabled globally using Flask-WTF's CSRFProtect.
+AJAX requests must include the "X-CSRFToken" header.
 """
-from flask import Blueprint, render_template, request, jsonify, session, url_for, redirect
+
+from flask import (
+    Blueprint, render_template, request, jsonify,
+    session, url_for, redirect
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
 from app import db
@@ -41,9 +53,16 @@ def register():
     if existing:
         return jsonify({"status": "error", "message": "Email already registered."})
 
-    # Create user
+    # Create hashed password
     hashed_pw = generate_password_hash(password)
-    new_user = User(name=name, email=email, role=role, password=hashed_pw)
+
+    # Create user
+    new_user = User(
+        name=name,
+        email=email,
+        role=role,
+        password=hashed_pw
+    )
 
     db.session.add(new_user)
     db.session.commit()
@@ -78,5 +97,3 @@ def dashboard():
     if "user_id" not in session:
         return redirect(url_for("users.index"))
     return render_template("dashboard.html")
-
-
