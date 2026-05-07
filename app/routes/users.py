@@ -7,7 +7,7 @@ The routes include:
 - "/login" for handling user login
 The registration route validates the email format and checks for existing users before creating a new user with a hashed password. The login route checks the provided credentials against the stored user data.
 """
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session, url_for, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
 from app import db
@@ -60,6 +60,23 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
-        return jsonify({"status": "success", "message": "Login OK!"})
+        session["user_id"] = user.id
+        session["user_name"] = user.name
+        return jsonify({"redirect": url_for("users.dashboard")})
     else:
         return jsonify({"status": "error", "message": "Invalid email or password."})
+
+# Route for user logout
+@users_bp.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("users.index"))
+
+# Route for user dashboard (protected route)
+@users_bp.route("/dashboard")
+def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("users.index"))
+    return render_template("dashboard.html")
+
+

@@ -38,9 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.status === "error") {
         document.getElementById("login-error").textContent = data.message;
         document.getElementById("login-error").classList.remove("d-none");
-      } else {
+      } else if (data.redirect) {
         // edit later after having route for dashboard
-        window.location.href = "/dashboard";
+        // window.location.href = "/dashboard";
+
+        window.location.href = data.redirect;
       }
     });
 
