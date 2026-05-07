@@ -1,22 +1,30 @@
-# This file initializes the Flask application, sets up the database connection, 
-# and imports routes and models. 
-# Using SQLAlchemy (switch from raw SQL to an ORM): Python classes = database tables, Class attributes = table columns, Automatic table creation, Cleaner, safer code
+"""
+This file initializes the Flask application and sets up the database connection using SQLAlchemy.
+It also imports the necessary routes and models to be used in the application.
+"""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-# Initialize SQLAlchemy
 db = SQLAlchemy()
-app = Flask(__name__)
 
-# Configuration with security (SECRET_KEY should be more secure in production)
-app.config['SECRET_KEY'] = "mysecretkey"
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///NewsSentimentDB.db" 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Function to create and configure the Flask application
+def create_app():
+    # Create a new Flask application instance
+    app = Flask(__name__)
 
-db.init_app(app)
+    # Configure the application with necessary settings
+    app.config['SECRET_KEY'] = "mysecretkey"
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///NewsSentimentDB.db"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Import models so SQLAlchemy knows them
-from app import models
+    # Initialize the database with the application
+    db.init_app(app)
 
-# Import routes
-from app import routes
+    # Register models
+    from app.models.user import User
+
+    # Register blueprints
+    from app.routes.users import users_bp
+    app.register_blueprint(users_bp)
+
+    return app
