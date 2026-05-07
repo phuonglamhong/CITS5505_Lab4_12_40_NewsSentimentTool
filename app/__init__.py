@@ -2,10 +2,13 @@
 This file initializes the Flask application and sets up the database connection using SQLAlchemy.
 It also imports the necessary routes and models to be used in the application.
 """
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 
 db = SQLAlchemy()
+csrf = CSRFProtect()   # Enable CSRF protection
 
 # Function to create and configure the Flask application
 def create_app():
@@ -19,6 +22,7 @@ def create_app():
 
     # Initialize the database with the application
     db.init_app(app)
+    csrf.init_app(app)   # Attach CSRF protection to the app
 
     # Register models
     from app.models.user import User

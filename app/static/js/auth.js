@@ -2,6 +2,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("AUTH.JS LOADED");
 
+  // Get CSRF token from hidden input field
+  const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
   // Clear messages, errors when switching to [Register] tab
   document.getElementById("register-tab").addEventListener("click", () => {
     document.getElementById("register-error").classList.add("d-none");
@@ -27,7 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Make a POST request to /login with the user's email and password as JSON
       const res = await fetch("/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
         body: JSON.stringify({ email, password }),
       });
 
@@ -94,7 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Make a POST request to /register with the user's name, email, role and password as JSON
       const res = await fetch("/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
         body: JSON.stringify({ name, email, role, password }),
       });
 

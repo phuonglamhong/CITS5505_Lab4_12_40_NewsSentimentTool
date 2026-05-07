@@ -38,11 +38,15 @@
     <div class="tab-pane fade show active" id="signin" role="tabpanel">
       <!-- JS-driven login error -->
       <div id="login-error" class="alert alert-danger d-none"></div>
+
       {% if login_error %}
       <div class="alert alert-danger">{{ login_error }}</div>
       {% endif %}
 
       <form id="login-form" novalidate>
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
         <div class="mb-3">
           <label for="login-email" class="form-label">Email address</label>
           <input
@@ -88,6 +92,7 @@
       <!-- JS-driven alerts -->
       <div id="register-error" class="alert alert-danger d-none"></div>
       <div id="register-success" class="alert alert-success d-none"></div>
+
       {% if register_error %}
       <div class="alert alert-danger">{{ register_error }}</div>
       {% endif %} {% if register_success %}
@@ -95,6 +100,9 @@
       {% endif %}
 
       <form id="register-form" novalidate>
+        <!-- CSRF Token -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
         <div class="mb-3">
           <label for="reg-name" class="form-label">Full Name</label>
           <input
