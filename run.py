@@ -1,4 +1,4 @@
-'"""
+"""
 This is the main entry point of the Flask application. 
 It imports the create_app function and the database instance from the app package, 
 creates an application instance, and initializes the database. 
