@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Comments · BrandPulse{% endblock %}
+{% block page_title %}Comments{% endblock %}
+
+{# ================================================================
+   JINJA MACRO — renders one comment (reused for top-level & replies)
+   Avoids duplicating HTML; called with render_comment(c, is_reply)
+================================================================ #}
+{% macro render_comment(c, is_reply=false) %}
+<div class="{{ 'comment-reply' if is_reply else 'comment-block' }}"
+     id="comment-{{ c.id }}">
+
+  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+    <span class="comment-author">{{ c.user_name }}</span>
+    <span style="font-size:0.75rem; color:var(--text-muted);
+                 background:#f4f6f9; padding:1px 6px; border-radius:4px;">
+      {{ c.user_role }} · {{ c.user_dept }}
+    </span>
+    <span class="comment-time">{{ c.created_at }}</span>
+
+    {# Jinja: highlight "My comment" badge for the logged-in user #}
+    {% if current_user and c.user_id == current_user.id %}
+      <span style="font-size:0.72rem; background:#d4edda; color:var(--positive);
+                   padding:1px 7px; border-radius:4px; font-weight:500;">You</span>
+    {% endif %}
+  </div>
+
+  <div class="comment-body">{{ c.content }}</div>
+
+  <div style="margin-top:8px; display:flex; gap:16px; align-items:center;">
+
+    {# Like button — fires POST via JS fetch, updates DB #}
+    <button class="like-btn" data-id="{{ c.id }}"
+            style="font-size:0.78rem; color:var(--text-muted); background:none;
+                   border:none; cursor:pointer; padding:0; transition:color 0.15s;">
+      &#128077; <span class="like-num">{{ c.likes }}</span>
+    </button>
+
+    {# Reply button — only on top-level, only when logged in #}
+    {% if current_user and not is_reply %}
+    <button class="reply-trigger"
+            data-id="{{ c.id }}" data-name="{{ c.user_name }}"
+            style="font-size:0.78rem; color:var(--text-muted); background:none;
+                   border:none; cursor:pointer; padding:0;"
+            onmouseover="this.style.color='var(--accent)'"
+            onmouseout="this.style.color='var(--text-muted)'">
+      &#128172; Reply
+    </button>
+    {% endif %}
+
+    {# Jinja: only render toggle button if there are replies for this comment #}
+    {% if not is_reply and replies.get(c.id) %}
+    <button id="toggle-replies-{{ c.id }}"
+            onclick="toggleReplies({{ c.id }}, this)"
+            style="font-size:0.78rem; color:var(--accent); background:none;
+                   border:none; cursor:pointer; padding:0;">
+      &#9660; Show {{ replies[c.id] | length }}
+      repl{{ 'y' if replies[c.id] | length == 1 else 'ies' }}
+    </button>
+    {% endif %}
+
+  </div>
+
+  {# Nested replies — collapsed by default #}
+  {% if not is_reply and replies.get(c.id) %}
+  <div id="replies-{{ c.id }}" style="display:none; margin-top:10px;">
+    {% for reply in replies[c.id] %}
+      {{ render_comment(reply, is_reply=true) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endmacro %}
+
+
+{% block content %}
+
+<a href="{{ url_for('index') }}"
+   style="font-size:0.85rem; color:var(--text-muted); display:inline-block; margin-bottom:18px;">
+  ← Back to News Feed
+</a>
+
+{# ================================================================
+   SINGLE CARD: news title + body (collapsible) + top comments
+================================================================ #}
+<div class="card" style="margin-bottom:20px;">
+
+  {# ── News title row (always visible) ── #}
+  <div class="card-header-custom"
+       style="cursor:pointer; user-select:none;
+              display:flex; align-items:center; justify-content:space-between;"
+       onclick="toggleSection('news-body', this)">
+
+    <div style="flex:1;">
+      {# Jinja: output news title and sentiment badge side by side #}
+      <span>{{ news.title }}</span>
+      <span class="badge-{{ news.sentiment }}" style="margin-left:10px;">
+        {{ news.sentiment }}
+      </span>
+    </div>
+    <span class="toggle-icon" style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; margin-left:12px;">
+      &#9660; Expand
+    </span>
+  </div>
+
+  {# ── News body — collapsed by default ── #}
+  <div id="news-body" style="display:none; padding:18px; border-bottom:1px solid var(--border);">
+
+    <div class="article-meta" style="margin-bottom:8px;">
+      {{ news.source }} &middot; {{ news.published_at }}
+    </div>
+
+    <p style="font-size:0.88rem; color:#495057; line-height:1.7; margin-bottom:14px;">
+      {{ news.body }}
+    </p>
+
+    {# Jinja: loop over keywords list #}
+    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;">
+      {% for kw in news.keywords %}
+        <span style="font-size:0.75rem; padding:2px 10px; border-radius:20px;
+                     background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe;">
+          {{ kw }}
+        </span>
+      {% endfor %}
+    </div>
+
+    <div class="nlp-panel">
+      <div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);
+                  text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">
+        AI Analysis
+      </div>
+      <div class="nlp-row">
+        <span class="nlp-label">Sentiment</span>
+        <span class="nlp-value">
+          <span class="badge-{{ news.sentiment }}">{{ news.sentiment }}</span>
+        </span>
+      </div>
+      <div class="nlp-row">
+        <span class="nlp-label">Confidence</span>
+        <span class="nlp-value">{{ "%.2f" | format(news.score) }}</span>
+      </div>
+      <div class="nlp-row" style="flex-direction:column; gap:6px;">
+        <span class="nlp-label">Score</span>
+        <div class="score-bar-wrap">
+          {# Jinja: calculate bar width from score float #}
+          <div class="score-bar-fill"
+               style="width:{{ (news.score * 100) | int }}%;
+                      background:{% if news.sentiment == 'positive' %}var(--positive)
+                                 {% elif news.sentiment == 'negative' %}var(--negative)
+                                 {% else %}var(--neutral){% endif %};">
+          </div>
+        </div>
+      </div>
+      {% if news.summary %}
+      <div class="nlp-row" style="flex-direction:column; gap:4px;">
+        <span class="nlp-label">Summary</span>
+        <span style="font-size:0.85rem; color:#495057; line-height:1.6;">{{ news.summary }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Comments inside the same card ── #}
+  <div style="padding:18px;">
+
+    <div style="font-size:0.82rem; font-weight:600; color:var(--text-muted);
+                text-transform:uppercase; letter-spacing:0.4px; margin-bottom:14px;">
+      {# Jinja: total comment count via filter #}
+      Top Comments &nbsp;·&nbsp; {{ (top2 | length) + (rest | length) }} total
+    </div>
+
+    {# Jinja: render top 2 comments using macro #}
+    {% if top2 %}
+      {% for c in top2 %}
+        {{ render_comment(c) }}
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--text-muted); font-size:0.88rem; padding:10px 0;">
+        No comments yet.
+      </p>
+    {% endif %}
+
+    {# Jinja: only show "more" toggle if rest list is non-empty #}
+    {% if rest %}
+    <div style="margin-top:4px;">
+      <button id="toggle-rest"
+              onclick="toggleRest(this)"
+              style="font-size:0.82rem; color:var(--accent); background:none;
+                     border:none; cursor:pointer; padding:4px 0;">
+        &#9660; Show {{ rest | length }} more comment{{ 's' if rest | length > 1 else '' }}
+      </button>
+    </div>
+
+    <div id="rest-comments" style="display:none; margin-top:8px;">
+      {% for c in rest %}
+        {{ render_comment(c) }}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+
+{# ================================================================
+   COMPOSE BOX — outside and below the card
+================================================================ #}
+<div class="card" style="padding:18px;">
+
+  {% if current_user %}
+
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+      <span style="font-size:0.88rem; font-weight:600;">{{ current_user.name }}</span>
+      <span style="font-size:0.78rem; color:var(--text-muted);">
+        {{ current_user.role }} · {{ current_user.dept }}
+      </span>
+      <span class="badge-positive" style="margin-left:auto;">&#10003; Authorized</span>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('comments', news_id=news.id) }}"
+          id="comment-form">
+
+      <input type="hidden" name="parent_id" id="form-parent-id" value="">
+
+      <div id="reply-hint"
+           style="display:none; font-size:0.78rem; color:var(--accent);
+                  padding:5px 10px; background:#f0f7ff; border-radius:4px;
+                  margin-bottom:8px; border-left:3px solid var(--accent);">
+        &#8629; Replying to <strong id="reply-to-name"></strong> &mdash;
+        <a href="#" onclick="cancelReply(event)" style="color:var(--text-muted);">Cancel</a>
+      </div>
+
+      <textarea name="content" id="comment-input"
+                rows="3" maxlength="1000"
+                placeholder="Share your thoughts on this article…"
+                style="width:100%; padding:10px 12px; border:1px solid var(--border);
+                       border-radius:6px; font-size:0.88rem; font-family:inherit;
+                       resize:vertical; outline:none; line-height:1.6;
+                       transition:border-color 0.15s; box-sizing:border-box;"
+                onfocus="this.style.borderColor='var(--accent)'"
+                onblur="this.style.borderColor='var(--border)'">
+      </textarea>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <span id="char-count" style="font-size:0.78rem; color:var(--text-muted);">0 / 1000</span>
+        <div style="display:flex; gap:8px;">
+          <button type="button" onclick="clearComment()" class="filter-btn">Clear</button>
+          <button type="submit"
+                  style="padding:6px 18px; border-radius:6px; border:none;
+                         background:var(--primary); color:#fff; font-size:0.88rem;
+                         font-weight:500; cursor:pointer;"
+                  onmouseover="this.style.background='var(--primary-dk)'"
+                  onmouseout="this.style.background='var(--primary)'">
+            Post
+          </button>
+        </div>
+      </div>
+    </form>
+
+  {% else %}
+    {# Jinja: not logged in — show login prompt #}
+    <div class="alert-item">
+      <div class="alert-title">Authorized employees only</div>
+      <div class="alert-desc">
+        <a href="{{ url_for('login', next=request.url) }}">Log in</a> to post a comment.
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}
