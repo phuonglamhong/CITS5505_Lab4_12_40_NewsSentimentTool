@@ -26,6 +26,7 @@ def create_app():
 
     # Register models
     from app.models.user import User
+    from app.models.article import Article
 
     # Register blueprints
     from app.routes.users import users_bp
