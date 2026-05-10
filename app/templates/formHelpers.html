@@ -1,0 +1,13 @@
+<!-- Form helper macros for rendering Flask-WTF forms with Bootstrap styling 
+ to handle validation errors and success messages.
+ -->
+{% macro render_field(field) %}
+<div class="mb-3">
+  {{ field.label(class="form-label") }} {{ field(class="form-control" + ("
+  is-invalid" if field.errors else "")) }} {% if field.errors %}
+  <div class="invalid-feedback">{{ field.errors[0] }}</div>
+  {% endif %}
+</div>
+{% endmacro %} {% macro success_alert(message) %} {% if message %}
+<div id="register-success" class="alert alert-success">{{ message }}</div>
+{% endif %} {% endmacro %}
