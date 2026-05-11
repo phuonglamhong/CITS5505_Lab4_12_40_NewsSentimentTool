@@ -56,7 +56,11 @@ body_class %}login-page{% endblock %} {% block content %}
               Remember me
             </label>
           </div>
-          <a href="#" style="font-size: 0.85rem">Forgot password?</a>
+          <a
+            href="{{ url_for('users.reset_password_request') }}"
+            style="font-size: 0.85rem"
+            >Forgot password?</a
+          >
         </div>
 
         {{ login_form.submit(class="btn btn-primary w-100") }}

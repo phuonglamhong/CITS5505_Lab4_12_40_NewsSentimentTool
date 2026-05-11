@@ -18,7 +18,7 @@ AJAX requests must include the "X-CSRFToken" header.
 
 from flask import (
     Blueprint, render_template, request, session,
-    url_for, redirect
+    url_for, redirect, current_app
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
@@ -26,8 +26,9 @@ from app.forms import (
     LoginForm, RegistForm, ResetPassRequestForm,
     ResetPassForm, ChangePassForm, DeleteAccountForm
 )
-from app import db
+from app import db, mail
 from datetime import timedelta
+from flask_mail import Message
 
 # Blueprint for user-related routes
 users_bp = Blueprint("users", __name__)
@@ -129,7 +130,6 @@ def login():
 
     if remember_me:
         session.permanent = True
-        users_bp.permanent_session_lifetime = timedelta(days=30)
 
     return redirect(url_for("users.dashboard"))
 
@@ -147,3 +147,72 @@ def dashboard():
     if "user_id" not in session:
         return redirect(url_for("users.index"))
     return render_template("dashboard.html")
+
+
+# ---------- PASSWORD RESET REQUEST ----------
+@users_bp.route("/reset_password", methods=["GET", "POST"])
+def reset_password_request():
+    if "user_id" in session:
+        return redirect(url_for("users.dashboard"))
+    
+    form = ResetPassRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = user.get_reset_token()
+            reset_url = url_for('users.reset_password', token=token, _external=True)
+            
+            # Check if email is configured
+            if current_app.config.get('MAIL_SERVER'):
+                msg = Message(
+                    'Password Reset Request',
+                    sender='noreply@example.com',
+                    recipients=[user.email]
+                )
+                msg.body = f'''To reset your password, visit the following link:
+{reset_url}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+                mail.send(msg)
+            else:
+                # Email not configured - show reset link directly (for development)
+                return render_template("reset_password_request.html", 
+                                     form=ResetPassRequestForm(),
+                                     success=f"Email not configured. For development, use this reset link: <a href='{reset_url}'>{reset_url}</a>")
+        
+        # Always show success message to prevent email enumeration (only when email is configured or no user found)
+        return render_template("reset_password_request.html", 
+                             form=ResetPassRequestForm(),
+                             success="If an account with that email exists, a password reset link has been sent.")
+    
+    return render_template("reset_password_request.html", form=form)
+
+
+# ---------- PASSWORD RESET ----------
+@users_bp.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if "user_id" in session:
+        return redirect(url_for("users.dashboard"))
+    
+    user = User.verify_reset_token(token)
+    if not user:
+        return render_template("reset_password.html", 
+                             form=ResetPassForm(),
+                             error="That is an invalid or expired token")
+    
+    form = ResetPassForm()
+    if form.validate_on_submit():
+        # Check if new password is the same as current password
+        if check_password_hash(user.password, form.password.data):
+            form.password.errors.append("New password cannot be the same as your current password.")
+            return render_template("reset_password.html", form=form)
+        
+        hashed_password = generate_password_hash(form.password.data)
+        user.password = hashed_password
+        db.session.commit()
+        return render_template("reset_password.html", 
+                             form=ResetPassForm(),
+                             success="Your password has been updated! You can now log in.")
+    
+    return render_template("reset_password.html", form=form)
