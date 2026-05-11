@@ -7,8 +7,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_mail import Mail
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
+migrate = Migrate()
 csrf = CSRFProtect()   # Enable CSRF protection
 mail = Mail()
 
@@ -43,6 +45,7 @@ def create_app():
 
     # Initialize the database with the application
     db.init_app(app)
+    migrate.init_app(app, db)
     csrf.init_app(app)   # Attach CSRF protection to the app
     mail.init_app(app)   # Initialize Flask-Mail
 
