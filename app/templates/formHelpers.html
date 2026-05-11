@@ -9,5 +9,9 @@
   {% endif %}
 </div>
 {% endmacro %} {% macro success_alert(message) %} {% if message %}
-<div id="register-success" class="alert alert-success">{{ message }}</div>
+<div id="register-success" class="alert alert-success">
+  {{ message | safe }}
+</div>
+{% endif %} {% endmacro %} {% macro error_alert(message) %} {% if message %}
+<div class="alert alert-danger">{{ message }}</div>
 {% endif %} {% endmacro %}
