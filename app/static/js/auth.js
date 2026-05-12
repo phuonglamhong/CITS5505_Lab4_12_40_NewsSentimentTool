@@ -1,8 +1,8 @@
-// AUTH.JS — Flask‑WTF native forms
+// Wait until the page is fully loaded before running authentication scripts
 document.addEventListener("DOMContentLoaded", () => {
   console.log("AUTH.JS LOADED");
 
-   // Get CSRF token from hidden input field
+  // Get CSRF token from hidden input field
   const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
   // Clear messages, errors when switching to [Register] tab
@@ -129,4 +129,3 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 });
-
