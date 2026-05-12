@@ -131,7 +131,7 @@ def login():
     if remember_me:
         session.permanent = True
 
-    return redirect(url_for("users.dashboard"))
+    return redirect(url_for("main.dashboard"))
 
 
 # ---------- LOGOUT ----------
@@ -140,20 +140,11 @@ def logout():
     session.clear()
     return redirect(url_for("users.index"))
 
-
-# ---------- DASHBOARD ----------
-@users_bp.route("/dashboard")
-def dashboard():
-    if "user_id" not in session:
-        return redirect(url_for("users.index"))
-    return render_template("dashboard.html")
-
-
 # ---------- PASSWORD RESET REQUEST ----------
 @users_bp.route("/reset_password", methods=["GET", "POST"])
 def reset_password_request():
     if "user_id" in session:
-        return redirect(url_for("users.dashboard"))
+        return redirect(url_for("main.dashboard"))
     
     form = ResetPassRequestForm()
     if form.validate_on_submit():
@@ -193,7 +184,7 @@ If you did not make this request then simply ignore this email and no changes wi
 @users_bp.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     if "user_id" in session:
-        return redirect(url_for("users.dashboard"))
+        return redirect(url_for("main.dashboard"))
     
     user = User.verify_reset_token(token)
     if not user:
