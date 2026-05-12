@@ -1,3 +1,34 @@
+function renderBrands(data) {
+    const container = document.getElementById('brand-list');
+    container.innerHTML = '';
+
+    data.forEach(b => {
+        container.innerHTML += `
+        <div class="brand-row mb-3" data-brand="${b.name}">
+            <div class="d-flex justify-content-between mb-1">
+                <strong>${b.name}</strong>
+                <span class="text-muted" style="font-size:0.85rem;">Score: ${b.score}</span>
+            </div>
+            <div class="progress mb-1" style="height:8px;">
+                <div class="progress-bar bg-success" style="width:${b.pos}%" title="Positive"></div>
+            </div>
+            <div class="progress mb-1" style="height:8px;">
+                <div class="progress-bar bg-warning" style="width:${b.neu}%" title="Neutral"></div>
+            </div>
+            <div class="progress" style="height:8px;">
+                <div class="progress-bar bg-danger" style="width:${b.neg}%" title="Negative"></div>
+            </div>
+            <div class="d-flex gap-3 mt-1" style="font-size:0.78rem; color:#666;">
+                <span>✅ ${b.pos}% Positive</span>
+                <span>⚡ ${b.neu}% Neutral</span>
+                <span>❌ ${b.neg}% Negative</span>
+            </div>
+        </div>`;
+    });
+}
+
+
+
 function filterBrands() {
     const query = document.getElementById('brand-search').value.toLowerCase();
 
@@ -11,8 +42,6 @@ function filterBrands() {
     });
 }
 let chart;
-
-
 
 function loadChart(data) {
 
@@ -59,6 +88,7 @@ function loadChart(data) {
         }
     });
 }
+
 
 
 function renderSummary(data) {
