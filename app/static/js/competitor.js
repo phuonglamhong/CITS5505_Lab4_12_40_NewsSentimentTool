@@ -1,7 +1,16 @@
+function filterBrands() {
+    const query = document.getElementById('brand-search').value.toLowerCase();
+    document.querySelectorAll('.brand-row').forEach(row => {
+        const name = row.dataset.brand.toLowerCase();
+        row.style.display = name.includes(query) ? '' : 'none';
+    });
+}
+
+let chart;
+
 function renderBrands(data) {
     const container = document.getElementById('brand-list');
     container.innerHTML = '';
-
     data.forEach(b => {
         container.innerHTML += `
         <div class="brand-row mb-3" data-brand="${b.name}">
@@ -15,7 +24,7 @@ function renderBrands(data) {
             <div class="progress mb-1" style="height:8px;">
                 <div class="progress-bar bg-warning" style="width:${b.neu}%" title="Neutral"></div>
             </div>
-            <div class="progress" style="height:8px;">
+            <div class="progress mb-1" style="height:8px;">
                 <div class="progress-bar bg-danger" style="width:${b.neg}%" title="Negative"></div>
             </div>
             <div class="d-flex gap-3 mt-1" style="font-size:0.78rem; color:#666;">
@@ -27,61 +36,25 @@ function renderBrands(data) {
     });
 }
 
-
-
-function filterBrands() {
-    const query = document.getElementById('brand-search').value.toLowerCase();
-
-    document.querySelectorAll('.brand-row').forEach(row => {
-
-        const name = row.dataset.brand.toLowerCase();
-
-        row.style.display = name.includes(query)
-            ? ''
-            : 'none';
-    });
-}
-let chart;
-
 function loadChart(data) {
-
-    const ctx = document.getElementById('competitorChart');
-
-    const labels = data.map(b => b.name);
+    const ctx      = document.getElementById('competitorChart');
+    const labels   = data.map(b => b.name);
     const positive = data.map(b => b.pos);
-    const neutral = data.map(b => b.neu);
+    const neutral  = data.map(b => b.neu);
     const negative = data.map(b => b.neg);
 
-    if (chart) {
-        chart.destroy();
-    }
+    if (chart) chart.destroy();
 
     chart = new Chart(ctx, {
-
         type: 'bar',
-
         data: {
             labels: labels,
-
             datasets: [
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
+                { label: 'Positive', data: positive, backgroundColor: '#2e7d50' },
+                { label: 'Neutral',  data: neutral,  backgroundColor: '#c88a1a' },
+                { label: 'Negative', data: negative, backgroundColor: '#b53b3b' }
             ]
         },
-
         options: {
             responsive: true,
             maintainAspectRatio: false
@@ -89,50 +62,29 @@ function loadChart(data) {
     });
 }
 
-
-
 function renderSummary(data) {
-
     const summary = document.getElementById('summary-body');
-
     summary.innerHTML = '';
-
     data.forEach(b => {
-
         summary.innerHTML += `
-
-      <tr>
-
-        <td>${b.name}</td>
-
-        <td>${b.score}</td>
-
-        <td>${b.articles}</td>
-
-        <td>${b.neg}%</td>
-
-      </tr>
-    `;
+        <tr>
+            <td>${b.name}</td>
+            <td>${b.score}</td>
+            <td>${b.articles}</td>
+            <td>${b.neg}%</td>
+        </tr>`;
     });
 }
 
-
 function loadData() {
-
     fetch('/api/competitors')
-
         .then(response => response.json())
-
         .then(data => {
-
             renderBrands(data);
-
             renderSummary(data);
-
             loadChart(data);
-        });
+        })
+        .catch(err => console.error('Failed to load competitor data:', err));
 }
-document.addEventListener(
-    'DOMContentLoaded',
-    loadData
-);
+
+document.addEventListener('DOMContentLoaded', loadData);
