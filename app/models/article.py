@@ -1,4 +1,6 @@
 from app import db
+from datetime import datetime
+
 
 class Article(db.Model):
 
@@ -13,6 +15,10 @@ class Article(db.Model):
     sentiment = db.Column(db.String(20), nullable=False)
 
     score = db.Column(db.Float, nullable=False)
+
+    source = db.Column(db.String(100), nullable=True)
+
+    date = db.Column(db.DateTime, nullable=True, default=datetime.utcnow)
 
     content = db.Column(db.Text)
 
