@@ -1,3 +1,16 @@
+/*
+Competitor dashboard functionality.
+
+This file handles:
+- Brand filtering
+- API data fetching
+- Dynamic summary rendering
+- Dynamic chart rendering
+*/
+
+let chart;
+
+// Filter displayed brands using search input.
 function filterBrands() {
     const query = document.getElementById('brand-search').value.toLowerCase();
 
@@ -10,8 +23,8 @@ function filterBrands() {
             : 'none';
     });
 }
-let chart;
 
+// Render competitor sentiment chart.
 function loadChart(data) {
 
     const ctx = document.getElementById('competitorChart');
@@ -21,6 +34,7 @@ function loadChart(data) {
     const neutral = data.map(b => b.neu);
     const negative = data.map(b => b.neg);
 
+    // Destroy existing chart before re-rendering
     if (chart) {
         chart.destroy();
     }
@@ -58,53 +72,64 @@ function loadChart(data) {
     });
 }
 
-function loadChart(data) {
+// Render brand comparison cards dynamically.
+function renderBrands(data) {
 
-    const ctx = document.getElementById('competitorChart');
+    const brandList =
+        document.getElementById('brand-list');
 
-    const labels = data.map(b => b.name);
-    const positive = data.map(b => b.pos);
-    const neutral = data.map(b => b.neu);
-    const negative = data.map(b => b.neg);
+    brandList.innerHTML = '';
 
-    if (chart) {
-        chart.destroy();
-    }
+    data.forEach(b => {
 
-    chart = new Chart(ctx, {
+        brandList.innerHTML += `
 
-        type: 'bar',
+            <div class="brand-row mb-3"
+                 data-brand="${b.name}">
 
-        data: {
-            labels: labels,
+                <div class="d-flex justify-content-between">
 
-            datasets: [
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
-            ]
-        },
+                    <strong>${b.name}</strong>
 
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
+                    <span>
+                        Score: ${b.score}
+                    </span>
+
+                </div>
+
+                <div class="progress mt-2"
+                     style="height: 22px;">
+
+                    <div class="progress-bar bg-success"
+                         style="width:${b.pos}%">
+
+                        ${b.pos}%
+
+                    </div>
+
+                    <div class="progress-bar bg-warning text-dark"
+                         style="width:${b.neu}%">
+
+                        ${b.neu}%
+
+                    </div>
+
+                    <div class="progress-bar bg-danger"
+                         style="width:${b.neg}%">
+
+                        ${b.neg}%
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
     });
 }
 
 
+// Render summary table dynamically.
 function renderSummary(data) {
 
     const summary = document.getElementById('summary-body');
@@ -130,7 +155,7 @@ function renderSummary(data) {
     });
 }
 
-
+// Fetch competitor data from backend API.
 function loadData() {
 
     fetch('/api/competitors')
@@ -146,6 +171,8 @@ function loadData() {
             loadChart(data);
         });
 }
+
+// Load competitor data after page loads.
 document.addEventListener(
     'DOMContentLoaded',
     loadData
