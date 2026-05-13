@@ -73,3 +73,34 @@ def feed():
         search_query=q,
         current_user=current_user
     )
+
+@main_bp.route("/test-comments")
+def test_comments():
+    from app.utility.sentiment_analysis_utils import analyze_sentiment, get_sentiment_summary
+
+    comments = [
+        {"author": "Alice", "text": "I love this!"},
+        {"author": "Bob", "text": "This is terrible."},
+        {"author": "Eve", "text": "The object is on the table."}
+    ]
+
+    processed_comments = []
+
+    for c in comments:
+        result = analyze_sentiment(c["text"])
+        processed_comments.append({
+            "author": c["author"],
+            "text": c["text"],
+            "sentiment": result["sentiment"],
+            "polarity": result["polarity"],
+            "confidence": result["confidence"]
+        })
+
+    # Generate pie chart summary
+    summary = get_sentiment_summary([c["text"] for c in comments])
+
+    return render_template(
+        "commentsTest.html",
+        comments=processed_comments,
+        summary=summary
+    )
