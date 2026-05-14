@@ -49,6 +49,7 @@ def create_app():
     # Register models
     from app.models.user import User
     from app.models.article import Article
+    from app.models.comment import Comment
 
     # Register blueprints
     from app.routes.users import users_bp
@@ -56,5 +57,11 @@ def create_app():
 
     from app.routes.competitor import competitor_bp
     app.register_blueprint(competitor_bp)
+
+    from app.routes.main import main_bp
+    app.register_blueprint(main_bp)
+
+    from app.routes.comments import comments_bp
+    app.register_blueprint(comments_bp)
 
     return app

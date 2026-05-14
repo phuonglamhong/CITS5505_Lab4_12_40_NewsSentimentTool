@@ -145,31 +145,15 @@ function loadChart(data) {
     }
 
     chart = new Chart(ctx, {
-
         type: 'bar',
-
         data: {
             labels: labels,
-
             datasets: [
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
+                { label: 'Positive', data: positive, backgroundColor: '#2e7d50' },
+                { label: 'Neutral',  data: neutral,  backgroundColor: '#c88a1a' },
+                { label: 'Negative', data: negative, backgroundColor: '#b53b3b' }
             ]
         },
-
         options: {
             responsive: true,
             maintainAspectRatio: false
@@ -186,9 +170,7 @@ function renderSummary(data) {
 
     // Clear previous table rows
     summary.innerHTML = '';
-
     data.forEach(b => {
-
         summary.innerHTML += `
 
             <tr>
@@ -209,19 +191,14 @@ function renderSummary(data) {
 
 // Fetches competitor analysis data from Flask API endpoint.
 function loadData() {
-
     fetch('/api/competitors')
-
         .then(response => response.json())
-
         .then(data => {
-
             renderBrands(data);
-
             renderSummary(data);
-
             loadChart(data);
-        });
+        })
+        .catch(err => console.error('Failed to load competitor data:', err));
 }
 
 
