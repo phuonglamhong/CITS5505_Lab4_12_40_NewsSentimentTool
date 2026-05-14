@@ -29,6 +29,7 @@ from app.forms import (
 from app import db, mail
 from datetime import timedelta
 from flask_mail import Message
+from flask import flash
 
 # Blueprint for user-related routes
 users_bp = Blueprint("users", __name__)
@@ -37,6 +38,11 @@ users_bp = Blueprint("users", __name__)
 # Route for rendering the login page
 @users_bp.route("/")
 def index():
+    return render_template("welcome.html")
+
+
+@users_bp.route("/login")
+def login_page():
     return render_template(
         "login.html",
         login_form=LoginForm(),
@@ -131,7 +137,7 @@ def login():
     if remember_me:
         session.permanent = True
 
-    return redirect(url_for("main.dashboard"))
+    return redirect(url_for("users.index"))
 
 
 # ---------- LOGOUT ----------
@@ -207,3 +213,43 @@ def reset_password(token):
                              success="Your password has been updated! You can now log in.")
     
     return render_template("reset_password.html", form=form)
+
+@users_bp.route("/change-password", methods=["GET", "POST"])
+def change_password():
+    if "user_id" not in session:
+        return redirect(url_for("users.login"))
+
+    form = ChangePassForm()
+    user = User.query.get(session["user_id"])
+
+    if form.validate_on_submit():
+        if not check_password_hash(user.password, form.old_password.data):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for("users.change_password"))
+
+        user.password = generate_password_hash(form.new_password.data)
+        db.session.commit()
+
+        flash("Password updated successfully!", "success")
+        session.clear()
+        return redirect(url_for("users.login"))
+
+    return render_template("change_password.html", form=form)
+
+@users_bp.route("/delete-account", methods=["GET", "POST"])
+def delete_account():
+    if "user_id" not in session:
+        return redirect(url_for("users.login_page"))
+
+    form = DeleteAccountForm()
+    user = User.query.get(session["user_id"])
+
+    if form.validate_on_submit():
+        db.session.delete(user)
+        db.session.commit()
+        session.clear()
+
+        flash("Your account has been permanently deleted.", "success")
+        return redirect(url_for("users.login_page"))
+
+    return render_template("delete_account.html", form=form)
