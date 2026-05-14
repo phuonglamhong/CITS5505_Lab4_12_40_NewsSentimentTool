@@ -1,26 +1,15 @@
-// ── Collapse / expand news body or any section ────────────────
-function toggleSection(sectionId, header) {
-  const section = document.getElementById(sectionId);
-  const icon    = header.querySelector('.toggle-icon');
-  if (!section) return;
-  const collapsed = section.style.display === 'none';
-  section.style.display = collapsed ? '' : 'none';
-  if (icon) icon.innerHTML = collapsed ? '&#9650; Collapse' : '&#9660; Expand';
+//Toggle article body (collapse/expand)
+function toggleArticle(articleId, header) {
+  const body  = document.getElementById('article-body-' + articleId);
+  const label = document.querySelector('.toggle-label-' + articleId);
+  if (!body) return;
+
+  const collapsed = body.style.display === 'none';
+  body.style.display = collapsed ? '' : 'none';
+  if (label) label.innerHTML = collapsed ? 'Hide &#9650;' : 'Show &#9660;';
 }
 
-// ── Show / hide remaining comments ───────────────────────────
-function toggleRest(btn) {
-  const rest = document.getElementById('rest-comments');
-  if (!rest) return;
-  const collapsed = rest.style.display === 'none';
-  rest.style.display = collapsed ? '' : 'none';
-  const count = rest.querySelectorAll('.comment-block').length;
-  btn.innerHTML = collapsed
-    ? '&#9650; Hide extra comments'
-    : '&#9660; Show ' + count + ' more comment' + (count > 1 ? 's' : '');
-}
-
-// ── Show / hide replies for one comment ──────────────────────
+//Toggle replies                       
 function toggleReplies(commentId, btn) {
   const replies = document.getElementById('replies-' + commentId);
   if (!replies) return;
@@ -32,65 +21,115 @@ function toggleReplies(commentId, btn) {
     : '&#9660; Show ' + count + ' repl' + (count === 1 ? 'y' : 'ies');
 }
 
-// ── Enter reply mode ──────────────────────────────────────────
+//Reply trigger                       ─
 document.querySelectorAll('.reply-trigger').forEach(btn => {
   btn.addEventListener('click', () => {
-    const parentId = btn.dataset.id;
-    const name     = btn.dataset.name;
-    document.getElementById('form-parent-id').value = parentId;
-    const hint   = document.getElementById('reply-hint');
-    const nameEl = document.getElementById('reply-to-name');
+    const commentId = btn.dataset.id;
+    const name      = btn.dataset.name;
+    const articleId = btn.dataset.article;
+
+    const form = document.querySelector('.comment-form[data-article-id="' + articleId + '"]');
+    if (!form) return;
+
+    form.querySelector('.form-parent-id').value = commentId;
+
+    const hint   = document.getElementById('reply-hint-' + articleId);
+    const nameEl = document.querySelector('.reply-to-name-' + articleId);
     if (hint)   hint.style.display = 'block';
     if (nameEl) nameEl.textContent = name;
-    const textarea = document.getElementById('comment-input');
+
+    const textarea = form.querySelector('.comment-input');
     if (textarea) {
       textarea.placeholder = 'Replying to ' + name + '…';
       textarea.focus();
-      document.querySelector('.card:last-child')
-        .scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 });
 
-// ── Cancel reply mode ─────────────────────────────────────────
-function cancelReply(e) {
+//Cancel reply                        
+function cancelReply(e, articleId) {
   e.preventDefault();
-  document.getElementById('form-parent-id').value = '';
-  const hint = document.getElementById('reply-hint');
+  const form = document.querySelector('.comment-form[data-article-id="' + articleId + '"]');
+  if (!form) return;
+  form.querySelector('.form-parent-id').value = '';
+  const hint = document.getElementById('reply-hint-' + articleId);
   if (hint) hint.style.display = 'none';
-  const textarea = document.getElementById('comment-input');
-  if (textarea) textarea.placeholder = 'Share your thoughts on this article…';
+  const textarea = form.querySelector('.comment-input');
+  if (textarea) textarea.placeholder = 'Share your thoughts…';
 }
 
-// ── Character counter ─────────────────────────────────────────
-const textarea  = document.getElementById('comment-input');
-const charCount = document.getElementById('char-count');
-if (textarea && charCount) {
+//Character counter                    
+document.querySelectorAll('.comment-form').forEach(form => {
+  const textarea  = form.querySelector('.comment-input');
+  const charCount = form.querySelector('.char-count');
+  if (!textarea || !charCount) return;
   textarea.addEventListener('input', () => {
     const len = textarea.value.length;
     charCount.textContent = len + ' / 1000';
     charCount.style.color = len > 900 ? '#b53b3b' : '#6c757d';
   });
-}
-function clearComment() {
-  if (textarea) {
-    textarea.value = '';
-    if (charCount) charCount.textContent = '0 / 1000';
-    textarea.focus();
-  }
+});
+
+// Clear form                         
+function clearForm(btn) {
+  const form      = btn.closest('.comment-form');
+  const textarea  = form.querySelector('.comment-input');
+  const charCount = form.querySelector('.char-count');
+  if (textarea)  textarea.value = '';
+  if (charCount) charCount.textContent = '0 / 1000';
+  if (textarea)  textarea.focus();
 }
 
-// ── Like — POST to backend, update DB, show new count ─────────
+//Like                            
 document.querySelectorAll('.like-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (btn.dataset.liked) return;   // prevent double-click
+    if (btn.dataset.liked) return;
     const commentId = btn.dataset.id;
-    fetch('/comments/' + commentId + '/like', { method: 'POST' })
+    const csrf = document.getElementById('csrf-global')?.value || '';
+    fetch('/comment/' + commentId + '/like', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf }
+    })
       .then(r => r.json())
       .then(data => {
-        btn.querySelector('.like-num').textContent = data.likes;
-        btn.dataset.liked = '1';
-        btn.style.color = 'var(--primary)';
+        if (data.status === 'success') {
+          btn.querySelector('.like-num').textContent = data.likes;
+          btn.dataset.liked = '1';
+          btn.style.color = 'var(--accent)';
+        }
       });
+  });
+});
+
+// Submit comment                       
+document.querySelectorAll('.comment-form').forEach(form => {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const textarea  = form.querySelector('.comment-input');
+    const content   = textarea.value.trim();
+    const parentId  = form.querySelector('.form-parent-id').value || null;
+    const articleId = form.dataset.articleId;
+    const csrf      = form.querySelector('input[name="csrf_token"]').value;
+
+    if (!content) return;
+
+    try {
+      const res = await fetch('/article/' + articleId + '/comment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrf
+        },
+        body: JSON.stringify({ content, parent_id: parentId })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        window.location.reload();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      alert('Network error. Please try again.');
+    }
   });
 });

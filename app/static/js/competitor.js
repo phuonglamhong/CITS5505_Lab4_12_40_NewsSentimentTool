@@ -13,26 +13,29 @@ let chart;
 // Filter displayed brands using search input.
 function filterBrands() {
     const query = document.getElementById('brand-search').value.toLowerCase();
-
     document.querySelectorAll('.brand-row').forEach(row => {
-
         const name = row.dataset.brand.toLowerCase();
-
-        row.style.display = name.includes(query)
-            ? ''
-            : 'none';
+        row.style.display = name.includes(query) ? '' : 'none';
     });
 }
 
 // Render competitor sentiment chart.
 function loadChart(data) {
 
-    const ctx = document.getElementById('competitorChart');
+    const ctx =
+        document.getElementById('competitorChart');
 
-    const labels = data.map(b => b.name);
-    const positive = data.map(b => b.pos);
-    const neutral = data.map(b => b.neu);
-    const negative = data.map(b => b.neg);
+    const labels =
+        data.map(b => b.name);
+
+    const positive =
+        data.map(b => b.pos);
+
+    const neutral =
+        data.map(b => b.neu);
+
+    const negative =
+        data.map(b => b.neg);
 
     // Destroy existing chart before re-rendering
     if (chart) {
@@ -44,24 +47,29 @@ function loadChart(data) {
         type: 'bar',
 
         data: {
+
             labels: labels,
 
             datasets: [
+
                 {
                     label: 'Positive',
                     data: positive,
                     backgroundColor: 'green'
                 },
+
                 {
                     label: 'Neutral',
                     data: neutral,
                     backgroundColor: 'gold'
                 },
+
                 {
                     label: 'Negative',
                     data: negative,
                     backgroundColor: 'red'
                 }
+
             ]
         },
 
@@ -72,7 +80,9 @@ function loadChart(data) {
     });
 }
 
+
 // Render brand comparison cards dynamically.
+
 function renderBrands(data) {
 
     const brandList =
@@ -131,45 +141,29 @@ function renderBrands(data) {
 
 // Render summary table dynamically.
 function renderSummary(data) {
-
     const summary = document.getElementById('summary-body');
-
     summary.innerHTML = '';
-
     data.forEach(b => {
-
         summary.innerHTML += `
-
-      <tr>
-
-        <td>${b.name}</td>
-
-        <td>${b.score}</td>
-
-        <td>${b.articles}</td>
-
-        <td>${b.neg}%</td>
-
-      </tr>
-    `;
+        <tr>
+            <td>${b.name}</td>
+            <td>${b.score}</td>
+            <td>${b.articles}</td>
+            <td>${b.neg}%</td>
+        </tr>`;
     });
 }
 
 // Fetch competitor data from backend API.
 function loadData() {
-
     fetch('/api/competitors')
-
         .then(response => response.json())
-
         .then(data => {
-
             renderBrands(data);
-
             renderSummary(data);
-
             loadChart(data);
-        });
+        })
+        .catch(err => console.error('Failed to load competitor data:', err));
 }
 
 // Load competitor data after page loads.
