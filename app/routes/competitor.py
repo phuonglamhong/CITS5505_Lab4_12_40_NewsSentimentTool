@@ -21,12 +21,12 @@ def competitor_page():
 @competitor_bp.route("/api/competitors")
 def competitor_api():
     
-    """
-    Return competitor sentiment analysis data as JSON.
+     """
+     Return competitor sentiment analysis data as JSON.
 
-    Currently uses hardcoded demo data.
-    Future implementation can connect to database models.
-    """
+     Currently uses hardcoded demo data.
+     Future implementation can connect to database models.
+     """
 
      """
       Return competitor sentiment analysis data as JSON.

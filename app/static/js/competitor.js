@@ -2,7 +2,6 @@
 let chart;
 
 
-
 // Filters competitor brand rows dynamically based on search input.
 function filterBrands() {
 
@@ -144,18 +143,44 @@ function loadChart(data) {
         chart.destroy();
     }
 
-    brandList.innerHTML = '';
+    chart = new Chart(ctx, {
 
-    data.forEach(b => {
+        type: 'bar',
 
-        brandList.innerHTML += `
+        data: {
 
-            <div class="brand-row mb-3"
-                 data-brand="${b.name}">
+            labels: labels,
 
-                <div class="d-flex justify-content-between">
+            datasets: [
 
-                    <strong>${b.name}</strong>
+                {
+                    label: 'Positive',
+                    data: positive,
+                    backgroundColor: 'green'
+                },
+
+                {
+                    label: 'Neutral',
+                    data: neutral,
+                    backgroundColor: 'gold'
+                },
+
+                {
+                    label: 'Negative',
+                    data: negative,
+                    backgroundColor: 'red'
+                }
+            ]
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
 
 // Displays competitor statistics inside summary table.
 function renderSummary(data) {
@@ -166,10 +191,9 @@ function renderSummary(data) {
     // Clear previous table rows
     summary.innerHTML = '';
 
-                    <div class="progress-bar bg-success"
-                         style="width:${b.pos}%">
+    data.forEach(b => {
 
-                        ${b.pos}%
+        summary.innerHTML += `
 
             <tr>
 
@@ -190,16 +214,26 @@ function renderSummary(data) {
 // Fetches competitor analysis data from Flask API endpoint.
 function loadData() {
 
-// Fetch competitor data from backend API.
-function loadData() {
     fetch('/api/competitors')
+
         .then(response => response.json())
+
         .then(data => {
+
             renderBrands(data);
+
             renderSummary(data);
+
             loadChart(data);
         })
-        .catch(err => console.error('Failed to load competitor data:', err));
+
+        .catch(err => {
+
+            console.error(
+                'Failed to load competitor data:',
+                err
+            );
+        });
 }
 
 
@@ -257,7 +291,6 @@ function addDiscussion() {
     // Clear input after posting
     input.value = '';
 }
-
 
 
 // Loads competitor data when page finishes loading.
