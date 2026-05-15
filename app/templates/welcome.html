@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen font-sans bg-gradient-to-br from-blue-100 via-gray-100 to-white text-gray-900">
+
+    <!-- Navigation Bar -->
+    <header class="px-8 py-6 flex justify-between items-center bg-white/80 backdrop-blur shadow-sm sticky top-0 z-10">
+
+        <h1 class="text-xl font-bold text-blue-700">
+            News Sentiment Analyzer
+        </h1>
+
+        <div class="flex gap-3">
+
+            <button onclick="goLogin()" class="px-4 py-2 rounded-full bg-white/70 hover:bg-white font-semibold">
+                Log in
+            </button>
+
+            <button onclick="goLogin()"
+                class="px-4 py-2 rounded-full bg-blue-700 text-white font-semibold hover:opacity-90">
+                Sign up
+            </button>
+
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <section class="animate-on-scroll max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+
+        <!-- Left section -->
+        <div>
+
+            <h2 class="text-4xl font-bold mb-4">
+                Understand the Emotion Behind the Headlines
+            </h2>
+
+            <p class="text-gray-600 mb-6 leading-relaxed">
+                Our News Sentiment Analyzer uses Natural Language Processing (NLP)
+                to evaluate whether news articles express positive, negative, or
+                neutral sentiment.
+
+                Designed for analysts, students, and researchers, the platform
+                transforms raw news into actionable insights.
+            </p>
+
+            <button onclick="goLogin()"
+                class="px-6 py-3 bg-blue-700 text-white rounded-full font-semibold shadow-lg hover:-translate-y-1 transition">
+
+                Get Started
+
+            </button>
+
+        </div>
+
+        <!-- Right section -->
+        <div class="flex justify-center">
+
+            <div class="float bg-white p-6 rounded-xl shadow-xl w-64">
+
+                <p class="font-semibold mb-3 text-center">
+                    Live Sentiment
+                </p>
+
+                <div class="mb-3">
+
+                    <div class="flex justify-between text-sm">
+                        <span>Positive</span>
+                        <span>70%</span>
+                    </div>
+
+                    <div class="h-2 bg-gray-200 rounded">
+                        <div class="h-2 bg-green-500 rounded w-[70%]"></div>
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <div class="flex justify-between text-sm">
+                        <span>Neutral</span>
+                        <span>20%</span>
+                    </div>
+
+                    <div class="h-2 bg-gray-200 rounded">
+                        <div class="h-2 bg-gray-500 rounded w-[20%]"></div>
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <div class="flex justify-between text-sm">
+                        <span>Negative</span>
+                        <span>10%</span>
+                    </div>
+
+                    <div class="h-2 bg-gray-200 rounded">
+                        <div class="h-2 bg-red-500 rounded w-[10%]"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- About -->
+    <section class="animate-on-scroll max-w-4xl mx-auto px-6 py-10 text-center">
+
+        <h3 class="text-2xl font-bold mb-4">
+            What is News Sentiment Analysis?
+        </h3>
+
+        <p class="text-gray-600 leading-relaxed">
+            News Sentiment Analysis applies machine learning and NLP techniques
+            to classify the emotional tone of news content.
+        </p>
+
+    </section>
+
+    <!-- Features -->
+    <section class="animate-on-scroll max-w-5xl mx-auto px-6 py-10 grid sm:grid-cols-2 gap-6">
+
+        <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+
+            <h4 class="font-bold mb-2">📂 Upload Content</h4>
+
+            <p class="text-gray-500">
+                Upload or paste news articles easily.
+            </p>
+
+        </div>
+
+        <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+
+            <h4 class="font-bold mb-2">🧠 Smart Analysis</h4>
+
+            <p class="text-gray-500">
+                AI-powered sentiment detection.
+            </p>
+
+        </div>
+
+        <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+
+            <h4 class="font-bold mb-2">📊 Visual Insights</h4>
+
+            <p class="text-gray-500">
+                Clear and intuitive results.
+            </p>
+
+        </div>
+
+        <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+
+            <h4 class="font-bold mb-2">💬 Collaboration</h4>
+
+            <p class="text-gray-500">
+                Discuss insights with your team.
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- How it works -->
+    <section class="animate-on-scroll max-w-5xl mx-auto px-6 py-10 text-center">
+
+        <h3 class="text-2xl font-bold mb-6">
+            How It Works
+        </h3>
+
+        <div class="flex items-center justify-center gap-4 text-lg">
+
+            <span class="bg-white px-4 py-2 rounded shadow">
+                Upload
+            </span>
+
+            <span class="animate-pulse">→</span>
+
+            <span class="bg-white px-4 py-2 rounded shadow">
+                Analyze
+            </span>
+
+            <span class="animate-pulse">→</span>
+
+            <span class="bg-white px-4 py-2 rounded shadow">
+                Results
+            </span>
+
+        </div>
+
+    </section>
+
+    <!-- CTA -->
+    <section class="text-center py-12">
+
+        <h3 class="text-2xl font-bold mb-4">
+            Start analyzing news today
+        </h3>
+
+        <button onclick="goLogin()"
+            class="px-6 py-3 bg-blue-700 text-white rounded-full font-semibold shadow hover:opacity-90">
+
+            Get Started
+
+        </button>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-gray-500 text-sm">
+
+        © 2026 News Sentiment Analyzer | Academic Project
+
+    </footer>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<script src="{{ url_for('static', filename='js/welcome.js') }}"></script>
+
+{% endblock %}
