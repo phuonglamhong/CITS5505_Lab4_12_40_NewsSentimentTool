@@ -750,6 +750,9 @@ a {
   }
 }
 
+
+/* Welcome - Landing page */
+
 @keyframes float {
 
   0% {
@@ -763,8 +766,72 @@ a {
   100% {
     transform: translateY(0px);
   }
+
 }
 
 .float {
   animation: float 3s ease-in-out infinite;
+}
+
+
+/* Collaboration Discussion Section */
+
+/* Discussion container card */
+.discussion-item {
+
+  background-color: #ffffff;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Hover effect for discussion cards */
+.discussion-item:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Discussion textarea styling */
+#discussion-input {
+
+  border-radius: 10px;
+
+  resize: none;
+}
+
+
+/* Post comment button */
+#discussion-input+div button {
+
+  padding-left: 16px;
+
+  padding-right: 16px;
+}
+
+
+/* Collaboration section spacing */
+#discussion-list {
+
+  margin-top: 10px;
+}
+
+
+/* Badge styling improvements */
+.discussion-item .badge {
+
+  font-size: 0.72rem;
+
+  padding: 6px 10px;
+}
+
+
+/* Discussion text styling */
+.discussion-item p {
+
+  line-height: 1.5;
 }
