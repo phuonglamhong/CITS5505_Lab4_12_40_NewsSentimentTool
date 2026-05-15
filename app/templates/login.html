@@ -1,66 +1,58 @@
 <!-- Login Page -->
-{% from "formHelpers.html" import render_field, success_alert %} {% extends
-"base.html" %} {% block title %}NewsSentiment — Sign In{% endblock %} {% block
-body_class %}login-page{% endblock %} {% block content %}
+{% from "formHelpers.html" import render_field, success_alert %}
+<!-- Extends base layout -->
+{% extends "base.html" %}
+
+{% block title %}NewsSentiment — Sign In{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block content %}
 <div class="login-card">
+  <!-- Brand header -->
   <div class="login-logo">News<span>Sentiment</span></div>
   <p class="login-subtitle">News sentiment intelligence platform</p>
 
-  <!-- Tabs -->
+  <!-- Authentication tabs (Sign In / Register) -->
   <ul class="nav nav-tabs mb-4" id="authTab" role="tablist">
+
+    <!-- Sign In tab -->
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link {% if active_tab != 'register' %}active{% endif %}"
-        id="signin-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#signin"
-        type="button"
-        role="tab"
-      >
+      <button class="nav-link {% if active_tab != 'register' %}active{% endif %}" id="signin-tab" data-bs-toggle="tab"
+        data-bs-target="#signin" type="button" role="tab">
         Sign In
       </button>
     </li>
+    <!-- Register tab -->
     <li class="nav-item" role="presentation">
-      <button
-        class="nav-link {% if active_tab == 'register' %}active{% endif %}"
-        id="register-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#register"
-        type="button"
-        role="tab"
-      >
+      <button class="nav-link {% if active_tab == 'register' %}active{% endif %}" id="register-tab" data-bs-toggle="tab"
+        data-bs-target="#register" type="button" role="tab">
         Register
       </button>
     </li>
   </ul>
 
+  <!-- Tab content container -->
   <div class="tab-content" id="authTabContent">
-    <!-- SIGN IN -->
-    <div
-      class="tab-pane fade {% if active_tab != 'register' %}show active{% endif %}"
-      id="signin"
-      role="tabpanel"
-    >
+    <!-- SIGN IN FORM -->
+    <div class="tab-pane fade {% if active_tab != 'register' %}show active{% endif %}" id="signin" role="tabpanel">
       <form id="login-form" method="POST" action="{{ url_for('users.login') }}">
-        {{ login_form.hidden_tag() }} {{ render_field(login_form.email) }} {{
-        render_field(login_form.password) }}
+        <!-- CSRF + hidden fields -->
+        {{ login_form.hidden_tag() }}
 
+        <!-- Email & password fields -->
+        {{ render_field(login_form.email) }}
+        {{ render_field(login_form.password) }}
+
+        <!-- Remember me and forgot password -->
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div class="form-check">
             {{ login_form.remember_me(class="form-check-input") }}
-            <label
-              class="form-check-label text-muted"
-              for="remember_me"
-              style="font-size: 0.85rem"
-            >
+            <label class="form-check-label text-muted" for="remember_me" style="font-size: 0.85rem">
               Remember me
             </label>
           </div>
-          <a
-            href="{{ url_for('users.reset_password_request') }}"
-            style="font-size: 0.85rem"
-            >Forgot password?</a
-          >
+          <!-- Password reset link -->
+          <a href="{{ url_for('users.reset_password_request') }}" style="font-size: 0.85rem">Forgot password?</a>
         </div>
 
         {{ login_form.submit(class="btn btn-primary w-100") }}
@@ -68,32 +60,33 @@ body_class %}login-page{% endblock %} {% block content %}
     </div>
 
     <!-- REGISTER -->
-    <div
-      class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}"
-      id="register"
-      role="tabpanel"
-    >
+    <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="register" role="tabpanel">
+      <!-- Success message after registration -->
       {{ success_alert(register_success) }}
 
-      <form
-        id="register-form"
-        method="POST"
-        action="{{ url_for('users.register') }}"
-      >
-        {{ register_form.hidden_tag() }} {{ render_field(register_form.name) }}
+      <form id="register-form" method="POST" action="{{ url_for('users.register') }}">
+        {{ register_form.hidden_tag() }}
+        <!-- User registration fields -->
+        {{ render_field(register_form.name) }}
         {{ render_field(register_form.email) }} {{
         render_field(register_form.role) }} {{
         render_field(register_form.password) }} {{
-        render_field(register_form.confirm_password) }} {{
-        register_form.submit(class="btn btn-primary w-100") }}
+        render_field(register_form.confirm_password) }}
+        <!-- Submit registration -->
+        {{ register_form.submit(class="btn btn-primary w-100") }}
       </form>
     </div>
   </div>
 </div>
 {% endblock %} {% block scripts %}
+<!-- Page-specific JS for authentication UI behavior -->
 <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 
 <script>
+  /*
+   Ensures correct tab is activated on page load
+   based on server-side state (active_tab variable).
+   */
   document.addEventListener("DOMContentLoaded", function () {
     const activeTab = "{{ active_tab }}";
 

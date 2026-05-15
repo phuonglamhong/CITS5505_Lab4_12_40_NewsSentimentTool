@@ -1,6 +1,6 @@
 """
 forms.py - Defines form classes for user authentication and account management.
-This module uses Flask-WTF and WTForms to create forms for login, registration, password reset, and account deletion. 
+This module uses Flask-WTF and WTForms to create forms for login, registration, password reset and account deletion. 
 Each form includes appropriate fields and validation rules to ensure data integrity and user input correctness. 
 The forms are designed to be rendered in the application's templates, providing a consistent user interface for authentication-related actions.
 """
@@ -19,7 +19,7 @@ ROLE_CHOICES = [
     ("viewer", "Viewer")
 ]
 
-# ---------- Form Classes ----------
+# Form Classes 
 # Each form class corresponds to a specific user action, such as logging in, registering, or resetting a password.
 
 # Login form for user authentication
