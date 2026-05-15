@@ -4,9 +4,11 @@
 
 {% block content %}
 
+<!-- Top navigation bar -->
 <div class="topbar">
     <span class="topbar-title">Competitor Analysis</span>
 
+    <!-- Alert and tracking summary -->
     <div class="topbar-right">
         <span>
             <i class="fa fa-bell text-warning me-1"></i>
@@ -32,15 +34,15 @@
 
     <div class="row g-3">
 
-        <!-- LEFT -->
+        <!-- Left Column -->
         <div class="col-lg-7">
 
             <div class="card">
-
+                <!-- Card header -->
                 <div class="card-header-custom d-flex justify-content-between align-items-center">
 
                     <span>Brand Sentiment Comparison</span>
-
+                    <!-- Search input -->
                     <input type="text" class="form-control form-control-sm" id="brand-search"
                         placeholder="Search brand..." style="width:160px;" oninput="filterBrands()">
                 </div>
@@ -51,7 +53,7 @@
             </div>
         </div>
 
-        <!-- RIGHT -->
+        <!-- Right Column -->
         <div class="col-lg-5">
 
             <!-- Summary -->
@@ -73,7 +75,7 @@
                                 <th>Neg %</th>
                             </tr>
                         </thead>
-
+                        <!-- Dynamic summary rows -->
                         <tbody id="summary-body">
                         </tbody>
 
@@ -95,7 +97,7 @@
 
             </div>
 
-            <!-- Legend -->
+            <!-- Sentiment Legend -->
             <div class="card">
 
                 <div class="card-header-custom">
@@ -200,8 +202,10 @@
 {% block scripts %}
 
 <!-- Scripts -->
+<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Competitor analysis functionality -->
 <script src="{{ url_for('static', filename='js/competitor.js') }}"></script>
 
 {% endblock %}

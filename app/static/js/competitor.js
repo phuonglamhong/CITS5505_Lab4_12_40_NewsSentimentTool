@@ -144,39 +144,18 @@ function loadChart(data) {
         chart.destroy();
     }
 
-    chart = new Chart(ctx, {
+    brandList.innerHTML = '';
 
-        type: 'bar',
+    data.forEach(b => {
 
-        data: {
-            labels: labels,
+        brandList.innerHTML += `
 
-            datasets: [
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
-            ]
-        },
+            <div class="brand-row mb-3"
+                 data-brand="${b.name}">
 
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
+                <div class="d-flex justify-content-between">
 
+                    <strong>${b.name}</strong>
 
 // Displays competitor statistics inside summary table.
 function renderSummary(data) {
@@ -187,9 +166,10 @@ function renderSummary(data) {
     // Clear previous table rows
     summary.innerHTML = '';
 
-    data.forEach(b => {
+                    <div class="progress-bar bg-success"
+                         style="width:${b.pos}%">
 
-        summary.innerHTML += `
+                        ${b.pos}%
 
             <tr>
 
@@ -210,18 +190,16 @@ function renderSummary(data) {
 // Fetches competitor analysis data from Flask API endpoint.
 function loadData() {
 
+// Fetch competitor data from backend API.
+function loadData() {
     fetch('/api/competitors')
-
         .then(response => response.json())
-
         .then(data => {
-
             renderBrands(data);
-
             renderSummary(data);
-
             loadChart(data);
-        });
+        })
+        .catch(err => console.error('Failed to load competitor data:', err));
 }
 
 

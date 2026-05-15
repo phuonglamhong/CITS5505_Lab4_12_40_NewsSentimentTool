@@ -14,10 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (err) err.classList.add("d-none");
   });
 
-  // Auto-switch to Sign In AFTER success message is visible
+  // Auto-switch to Sign In AFTER register success is visible
   const successMsg = document.getElementById("register-success");
 
-  if (successMsg) {
+  if (successMsg && successMsg.textContent.trim()) {
     requestAnimationFrame(() => {
       setTimeout(() => {
         document.getElementById("signin-tab").click();

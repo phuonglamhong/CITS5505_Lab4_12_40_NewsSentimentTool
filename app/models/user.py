@@ -16,16 +16,15 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
 
     def get_reset_token(self, expires_sec=1800):
-        """Generate a password reset token that expires in 30 minutes by default."""
         s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-        return s.dumps({'user_id': self.id})
+        return s.dumps({'user_id': self.id}, salt='password-reset')
 
     @staticmethod
     def verify_reset_token(token, expires_sec=1800):
-        """Verify the reset token and return the user if valid, else None."""
         s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         try:
-            user_id = s.loads(token, max_age=expires_sec)['user_id']
+            user_id = s.loads(token, salt='password-reset', max_age=expires_sec)['user_id']
         except Exception:
             return None
         return User.query.get(user_id)
+

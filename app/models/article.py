@@ -36,4 +36,8 @@ class Article(db.Model):
         Useful for debugging and logging.
         """
     def __repr__(self):
+        """
+        String representation of the Article object.
+        Useful for debugging and logging.
+        """
         return f"<Article {self.title}>"
