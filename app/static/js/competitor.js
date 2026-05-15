@@ -1,25 +1,126 @@
-/*
-Competitor dashboard functionality.
-
-This file handles:
-- Brand filtering
-- API data fetching
-- Dynamic summary rendering
-- Dynamic chart rendering
-*/
-
+// Store chart instance globally so it can be updated safely
 let chart;
 
-// Filter displayed brands using search input.
+
+
+// Filters competitor brand rows dynamically based on search input.
 function filterBrands() {
-    const query = document.getElementById('brand-search').value.toLowerCase();
+
+    const query =
+        document.getElementById('brand-search')
+            .value
+            .toLowerCase();
+
     document.querySelectorAll('.brand-row').forEach(row => {
-        const name = row.dataset.brand.toLowerCase();
-        row.style.display = name.includes(query) ? '' : 'none';
+
+        const name =
+            row.dataset.brand.toLowerCase();
+
+        row.style.display =
+            name.includes(query)
+                ? ''
+                : 'none';
     });
 }
 
-// Render competitor sentiment chart.
+
+// Dynamically creates competitor sentiment cards from API data.
+function renderBrands(data) {
+
+    const brandList =
+        document.getElementById('brand-list');
+
+    // Clear previous content
+    brandList.innerHTML = '';
+
+    data.forEach(brand => {
+
+        brandList.innerHTML += `
+
+            <div
+                class="brand-row border rounded p-3 mb-3"
+                data-brand="${brand.name}"
+            >
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            ${brand.name}
+                        </h5>
+
+                        <small class="text-muted">
+                            ${brand.articles} articles analysed
+                        </small>
+
+                    </div>
+
+                    <span class="badge bg-primary">
+                        Score ${brand.score}
+                    </span>
+
+                </div>
+
+                <div class="mt-3">
+
+                    <div class="mb-2">
+
+                        <div class="d-flex justify-content-between">
+                            <span>Positive</span>
+                            <span>${brand.pos}%</span>
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar bg-success"
+                                style="width:${brand.pos}%"
+                            ></div>
+                        </div>
+
+                    </div>
+
+                    <div class="mb-2">
+
+                        <div class="d-flex justify-content-between">
+                            <span>Neutral</span>
+                            <span>${brand.neu}%</span>
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar bg-warning"
+                                style="width:${brand.neu}%"
+                            ></div>
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="d-flex justify-content-between">
+                            <span>Negative</span>
+                            <span>${brand.neg}%</span>
+                        </div>
+
+                        <div class="progress">
+                            <div
+                                class="progress-bar bg-danger"
+                                style="width:${brand.neg}%"
+                            ></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+    });
+}
+
+
+// Creates and updates Chart.js bar chart for sentiment comparison.
 function loadChart(data) {
 
     const ctx =
@@ -37,56 +138,11 @@ function loadChart(data) {
     const negative =
         data.map(b => b.neg);
 
-    // Destroy existing chart before re-rendering
+    // Destroy old chart before re-rendering
     if (chart) {
+
         chart.destroy();
     }
-
-    chart = new Chart(ctx, {
-
-        type: 'bar',
-
-        data: {
-
-            labels: labels,
-
-            datasets: [
-
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
-
-            ]
-        },
-
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-
-// Render brand comparison cards dynamically.
-
-function renderBrands(data) {
-
-    const brandList =
-        document.getElementById('brand-list');
 
     brandList.innerHTML = '';
 
@@ -101,58 +157,38 @@ function renderBrands(data) {
 
                     <strong>${b.name}</strong>
 
-                    <span>
-                        Score: ${b.score}
-                    </span>
+// Displays competitor statistics inside summary table.
+function renderSummary(data) {
 
-                </div>
+    const summary =
+        document.getElementById('summary-body');
 
-                <div class="progress mt-2"
-                     style="height: 22px;">
+    // Clear previous table rows
+    summary.innerHTML = '';
 
                     <div class="progress-bar bg-success"
                          style="width:${b.pos}%">
 
                         ${b.pos}%
 
-                    </div>
+            <tr>
 
-                    <div class="progress-bar bg-warning text-dark"
-                         style="width:${b.neu}%">
+                <td>${b.name}</td>
 
-                        ${b.neu}%
+                <td>${b.score}</td>
 
-                    </div>
+                <td>${b.articles}</td>
 
-                    <div class="progress-bar bg-danger"
-                         style="width:${b.neg}%">
+                <td>${b.neg}%</td>
 
-                        ${b.neg}%
-
-                    </div>
-
-                </div>
-
-            </div>
+            </tr>
         `;
     });
 }
 
 
-// Render summary table dynamically.
-function renderSummary(data) {
-    const summary = document.getElementById('summary-body');
-    summary.innerHTML = '';
-    data.forEach(b => {
-        summary.innerHTML += `
-        <tr>
-            <td>${b.name}</td>
-            <td>${b.score}</td>
-            <td>${b.articles}</td>
-            <td>${b.neg}%</td>
-        </tr>`;
-    });
-}
+// Fetches competitor analysis data from Flask API endpoint.
+function loadData() {
 
 // Fetch competitor data from backend API.
 function loadData() {
@@ -166,7 +202,65 @@ function loadData() {
         .catch(err => console.error('Failed to load competitor data:', err));
 }
 
-// Load competitor data after page loads.
+
+// Allows users to post collaboration discussion comments dynamically.
+function addDiscussion() {
+
+    const input =
+        document.getElementById('discussion-input');
+
+    const discussionList =
+        document.getElementById('discussion-list');
+
+    const text =
+        input.value.trim();
+
+    // Prevent empty submissions
+    if (text === '') {
+
+        alert('Please enter a discussion comment.');
+
+        return;
+    }
+
+    // Create new discussion card
+    const discussionItem =
+        document.createElement('div');
+
+    discussionItem.className =
+        'discussion-item mb-3 p-3 border rounded';
+
+    discussionItem.innerHTML = `
+
+        <div class="d-flex justify-content-between">
+
+            <strong>Team Member</strong>
+
+            <span class="badge bg-primary">
+                New Comment
+            </span>
+
+        </div>
+
+        <p class="mt-2 mb-1">
+            ${text}
+        </p>
+
+        <small class="text-muted">
+            Just now
+        </small>
+    `;
+
+    // Add newest comment at top
+    discussionList.prepend(discussionItem);
+
+    // Clear input after posting
+    input.value = '';
+}
+
+
+
+// Loads competitor data when page finishes loading.
 document.addEventListener(
     'DOMContentLoaded',
     loadData

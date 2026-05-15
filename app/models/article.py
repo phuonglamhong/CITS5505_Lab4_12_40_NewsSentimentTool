@@ -4,12 +4,12 @@ Article database model.
 This model stores competitor news articles and
 their associated sentiment analysis results.
 """
+
 from app import db
 
 class Article(db.Model):
 
     # SQLAlchemy model for storing article sentiment data.
-
     # Database table name
     __tablename__ = "articles"
 
@@ -31,6 +31,10 @@ class Article(db.Model):
     # Full article content/body text
     content = db.Column(db.Text)
 
+    """
+        String representation of the Article object.
+        Useful for debugging and logging.
+        """
     def __repr__(self):
         """
         String representation of the Article object.

@@ -10,6 +10,12 @@ function goLogin() {
     window.location.href = "/";
 }
 
+/*
+Intersection Observer for scroll animations.
+
+Adds animation classes when elements
+enter the viewport.
+*/
 
 // Scroll animation
 const observer = new IntersectionObserver(entries => {

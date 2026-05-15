@@ -14,7 +14,8 @@ from flask_mail import Mail
 
 # Database instance
 db = SQLAlchemy()
-csrf = CSRFProtect()   # Enable CSRF protection
+# Enable CSRF protection
+csrf = CSRFProtect()   
 # Mail service instance
 mail = Mail()
 
