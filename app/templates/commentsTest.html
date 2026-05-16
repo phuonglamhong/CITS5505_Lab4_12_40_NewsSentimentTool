@@ -1,8 +1,11 @@
-{% for c in comments %}
+<!-- Render each comment in the dataset -->
+ {% for c in comments %}
 <div class="comment-box mb-3 p-3 border rounded">
   <p><strong>{{ c.author }}</strong></p>
+  <!-- Comment text content -->
   <p>{{ c.text }}</p>
 
+  <!-- Sentiment label with color-coded badge -->
   {% if c.sentiment == "positive" %}
   <span class="badge bg-success">Positive</span>
   {% elif c.sentiment == "negative" %}
@@ -11,26 +14,35 @@
   <span class="badge bg-secondary">Neutral</span>
   {% endif %}
 
+  <!-- Model output metadata for debugging/analysis -->
   <div class="mt-2 small text-muted">
     Polarity: {{ c.polarity }} | Confidence: {{ c.confidence }}
   </div>
 </div>
 {% endfor %}
 
+<!-- Sentiment visualization section -->
 <h4 class="mt-4">Sentiment Distribution</h4>
 
+<!-- Fixed-size container for pie chart -->
 <div style="width: 300px; height: 300px; margin: 0 auto">
   <canvas id="sentimentChart"></canvas>
 </div>
 
+<!-- Chart.js library for visualization -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  /*
+    Sentiment chart data passed from Flask backend.
+    Using tojson ensures safe JS serialization from Jinja.
+   */
   const chartLabels = JSON.parse(`{{ summary.chart_labels | tojson | safe }}`);
   const chartValues = JSON.parse(`{{ summary.chart_values | tojson | safe }}`);
 
   const ctx = document.getElementById("sentimentChart").getContext("2d");
 
+  // Pie chart representing sentiment distribution
   new Chart(ctx, {
     type: "pie",
     data: {

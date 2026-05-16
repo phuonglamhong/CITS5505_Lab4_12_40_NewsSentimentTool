@@ -30,10 +30,10 @@ from app import db, mail
 from datetime import timedelta
 from flask_mail import Message
 
-# Blueprint for user-related routes
+# Blueprint for grouping all user authentication related routes
 users_bp = Blueprint("users", __name__)
 
-# ---------- Routes ----------
+# Routes
 # Route for rendering the login page
 @users_bp.route("/")
 def index():
@@ -47,6 +47,7 @@ def index():
 
 
 # ---------- REGISTER ----------
+# Handles new user registration.
 @users_bp.route("/register", methods=["POST"])
 def register():
     form = RegistForm()
@@ -61,13 +62,13 @@ def register():
             active_tab="register"
         )
 
-    # Extract data
+    # Extract validated form data
     name = form.name.data
     email = form.email.data
     role = form.role.data
     password = form.password.data
 
-    # Check existing user
+    # Prevent duplicate accounts - for existing user
     if User.query.filter_by(email=email).first():
         form.email.errors.append("Email already registered.")
         return render_template(
@@ -78,7 +79,7 @@ def register():
             active_tab="register"
         )
 
-    # Create user
+     # Secure password storage using hashing
     hashed_pw = generate_password_hash(password)
     new_user = User(name=name, email=email, role=role, password=hashed_pw)
 
@@ -95,7 +96,8 @@ def register():
     )
 
 
-# ---------- LOGIN ----------
+# ---------- USER LOGIN ----------
+# Authenticates user credentials.
 @users_bp.route("/login", methods=["POST"])
 def login():
     form = LoginForm()
@@ -115,6 +117,7 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
+    # Prevent login with incorrect credentials
     if not user or not check_password_hash(user.password, password):
         form.email.errors.append("Invalid email or password.")
         return render_template(
@@ -124,7 +127,7 @@ def login():
             register_success=None
         )
 
-    # Login success
+    # Store session data for authenticated user
     session["user_id"] = user.id
     session["user_name"] = user.name
 
@@ -135,12 +138,14 @@ def login():
 
 
 # ---------- LOGOUT ----------
+# Clears all session data and logs out the user.
 @users_bp.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("users.index"))
 
 # ---------- PASSWORD RESET REQUEST ----------
+# Handles password reset requests.
 @users_bp.route("/reset_password", methods=["GET", "POST"])
 def reset_password_request():
     if "user_id" in session:
@@ -181,6 +186,7 @@ If you did not make this request then simply ignore this email and no changes wi
 
 
 # ---------- PASSWORD RESET ----------
+# Allows user to set a new password using a secure token.
 @users_bp.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     if "user_id" in session:
