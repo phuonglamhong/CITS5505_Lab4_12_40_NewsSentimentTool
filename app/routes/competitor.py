@@ -28,12 +28,7 @@ def competitor_api():
      Future implementation can connect to database models.
      """
 
-     """
-      Return competitor sentiment analysis data as JSON.
-
-      Currently uses hardcoded demo data.
-      Future implementation can connect to database models.
-      """
+     
      data = [
         {
             "name": "Apple",
