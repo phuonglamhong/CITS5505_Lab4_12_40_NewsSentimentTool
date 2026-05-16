@@ -3,13 +3,20 @@ This file initializes the Flask application and sets up the database connection 
 It also imports the necessary routes and models to be used in the application.
 """
 
+# Flask framework imports
 from flask import Flask
+# SQLAlchemy ORM for database management
 from flask_sqlalchemy import SQLAlchemy
+# CSRF protection for secure form submissions
 from flask_wtf import CSRFProtect
+# Flask-Mail for email functionality
 from flask_mail import Mail
 
+# Database instance
 db = SQLAlchemy()
-csrf = CSRFProtect()   # Enable CSRF protection
+# Enable CSRF protection
+csrf = CSRFProtect()   
+# Mail service instance
 mail = Mail()
 
 # Function to create and configure the Flask application
@@ -55,6 +62,7 @@ def create_app():
     from app.routes.users import users_bp
     app.register_blueprint(users_bp)
 
+    # Register competitor analysis routes
     from app.routes.competitor import competitor_bp
     app.register_blueprint(competitor_bp)
 

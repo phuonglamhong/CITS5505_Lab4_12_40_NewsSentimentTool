@@ -371,7 +371,7 @@ a {
   padding: 1rem 1.25rem 1.35rem;
 }
 
-.sentiment-item + .sentiment-item {
+.sentiment-item+.sentiment-item {
   margin-top: 1rem;
 }
 

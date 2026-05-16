@@ -145,16 +145,37 @@ function loadChart(data) {
     }
 
     chart = new Chart(ctx, {
+
         type: 'bar',
+
         data: {
+
             labels: labels,
+
             datasets: [
-                { label: 'Positive', data: positive, backgroundColor: '#2e7d50' },
-                { label: 'Neutral',  data: neutral,  backgroundColor: '#c88a1a' },
-                { label: 'Negative', data: negative, backgroundColor: '#b53b3b' }
+
+                {
+                    label: 'Positive',
+                    data: positive,
+                    backgroundColor: 'green'
+                },
+
+                {
+                    label: 'Neutral',
+                    data: neutral,
+                    backgroundColor: 'gold'
+                },
+
+                {
+                    label: 'Negative',
+                    data: negative,
+                    backgroundColor: 'red'
+                }
             ]
         },
+
         options: {
+
             responsive: true,
             maintainAspectRatio: false
         }
@@ -170,7 +191,9 @@ function renderSummary(data) {
 
     // Clear previous table rows
     summary.innerHTML = '';
+
     data.forEach(b => {
+
         summary.innerHTML += `
 
             <tr>
@@ -191,14 +214,83 @@ function renderSummary(data) {
 
 // Fetches competitor analysis data from Flask API endpoint.
 function loadData() {
+
     fetch('/api/competitors')
+
         .then(response => response.json())
+
         .then(data => {
+
             renderBrands(data);
+
             renderSummary(data);
+
             loadChart(data);
         })
-        .catch(err => console.error('Failed to load competitor data:', err));
+
+        .catch(err => {
+
+            console.error(
+                'Failed to load competitor data:',
+                err
+            );
+        });
+}
+
+
+// Allows users to post collaboration discussion comments dynamically.
+function addDiscussion() {
+
+    const input =
+        document.getElementById('discussion-input');
+
+    const discussionList =
+        document.getElementById('discussion-list');
+
+    const text =
+        input.value.trim();
+
+    // Prevent empty submissions
+    if (text === '') {
+
+        alert('Please enter a discussion comment.');
+
+        return;
+    }
+
+    // Create new discussion card
+    const discussionItem =
+        document.createElement('div');
+
+    discussionItem.className =
+        'discussion-item mb-3 p-3 border rounded';
+
+    discussionItem.innerHTML = `
+
+        <div class="d-flex justify-content-between">
+
+            <strong>Team Member</strong>
+
+            <span class="badge bg-primary">
+                New Comment
+            </span>
+
+        </div>
+
+        <p class="mt-2 mb-1">
+            ${text}
+        </p>
+
+        <small class="text-muted">
+            Just now
+        </small>
+    `;
+
+    // Add newest comment at top
+    discussionList.prepend(discussionItem);
+
+    // Clear input after posting
+    input.value = '';
 }
 
 

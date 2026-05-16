@@ -4,9 +4,11 @@
 
 {% block content %}
 
+<!-- Top navigation bar -->
 <div class="topbar">
     <span class="topbar-title">Competitor Analysis</span>
 
+    <!-- Alert and tracking summary -->
     <div class="topbar-right">
         <span>
             <i class="fa fa-bell text-warning me-1"></i>
@@ -32,15 +34,15 @@
 
     <div class="row g-3">
 
-        <!-- LEFT -->
+        <!-- Left Column -->
         <div class="col-lg-7">
 
             <div class="card">
-
+                <!-- Card header -->
                 <div class="card-header-custom d-flex justify-content-between align-items-center">
 
                     <span>Brand Sentiment Comparison</span>
-
+                    <!-- Search input -->
                     <input type="text" class="form-control form-control-sm" id="brand-search"
                         placeholder="Search brand..." style="width:160px;" oninput="filterBrands()">
                 </div>
@@ -51,7 +53,7 @@
             </div>
         </div>
 
-        <!-- RIGHT -->
+        <!-- Right Column -->
         <div class="col-lg-5">
 
             <!-- Summary -->
@@ -73,7 +75,7 @@
                                 <th>Neg %</th>
                             </tr>
                         </thead>
-
+                        <!-- Dynamic summary rows -->
                         <tbody id="summary-body">
                         </tbody>
 
@@ -95,7 +97,7 @@
 
             </div>
 
-            <!-- Legend -->
+            <!-- Sentiment Legend -->
             <div class="card">
 
                 <div class="card-header-custom">
@@ -124,7 +126,75 @@
 
         </div>
     </div>
+
+    <!-- Analysis Collaboration Section -->
+    <div class="card mt-4">
+
+        <div class="card-header-custom">
+            Analysis Discussion & Team Collaboration
+        </div>
+
+        <div class="p-3">
+
+            <!-- Discussion description -->
+            <p class="text-muted mb-4">
+                Team members can review sentiment results, discuss article accuracy,
+                and flag potential sentiment misclassifications.
+            </p>
+
+            <!-- Comment input -->
+            <div class="mb-4">
+
+                <textarea class="form-control" id="discussion-input" rows="3"
+                    placeholder="Share analysis insights or flag sentiment issues..."></textarea>
+
+                <div class="d-flex justify-content-end mt-2">
+
+                    <button class="btn btn-primary btn-sm" onclick="addDiscussion()">
+                        Post Comment
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- Discussion list -->
+            <div id="discussion-list">
+
+                <!-- Example discussion item -->
+                <div class="discussion-item mb-3 p-3 border rounded">
+
+                    <div class="d-flex justify-content-between">
+
+                        <strong>Analyst Team</strong>
+
+                        <span class="badge bg-warning text-dark">
+                            Misclassification
+                        </span>
+
+                    </div>
+
+                    <p class="mt-2 mb-1">
+                        Tesla sentiment appears unusually negative this week.
+                        Recommend manual review of source articles.
+                    </p>
+
+                    <small class="text-muted">
+                        2 replies • 5 mins ago
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
 </div>
+
+
 
 
 {% endblock %}
@@ -132,8 +202,10 @@
 {% block scripts %}
 
 <!-- Scripts -->
+<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Competitor analysis functionality -->
 <script src="{{ url_for('static', filename='js/competitor.js') }}"></script>
 
 {% endblock %}
