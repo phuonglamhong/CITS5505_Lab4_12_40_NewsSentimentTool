@@ -1,54 +1,58 @@
-'''
-Route for uploading text content for sentiment analysis
-'''
-from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session
-from flask_login import login_required
-from app.utility.sentiment_analysis_utils import get_sentiment_summary, analyze_sentiment
-from app.forms import UploadForm
-import requests
-from datetime import datetime, timedelta
-from flask_login import current_user
+"""
+Upload route — handles article submission and sentiment analysis.
+Users paste article content, which is analyzed and saved to the database.
+Viewers are not permitted to upload articles.
+"""
 
-upload_bp = Blueprint('upload', __name__, url_prefix='/upload')
+from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask_login import current_user, login_required
+from app import db
+from app.models.article import Article
+from app.utility.sentiment_analysis_utils import analyze_sentiment
 
-# ---------------------------------------------------------
-# Route for uploading text content for sentiment analysis
-# ---------------------------------------------------------
-@upload_bp.route('/', methods=['GET', 'POST'])
+upload_bp = Blueprint("upload", __name__)
+
+
+@upload_bp.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
-    form = UploadForm()
+    # Viewers are not permitted to upload articles
+    if current_user.role == "viewer":
+        return render_template("upload.html", error="You do not have permission to upload articles. Viewer role is read-only.")
 
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            text_content = form.content.data.strip()
+    if request.method == "POST":
+        brand   = request.form.get("brand", "").strip()
+        title   = request.form.get("title", "").strip()
+        content = request.form.get("content", "").strip()
 
-            if not text_content:
-                flash("No content provided!", "danger")
-                return redirect(url_for("upload.upload"))
+        if not brand or not title or not content:
+            return render_template("upload.html", error="All fields are required.")
 
-            lines = [t.strip() for t in text_content.split("\n") if t.strip()]
+        result = analyze_sentiment(content)
 
-            # Single-line → analyze_sentiment
-            if len(lines) == 1:
-                sentiment_data = analyze_sentiment(lines[0])
+        sentiment = result["sentiment"].capitalize()
+        score = round((result["polarity"] + 1) * 5, 1)
 
-                # Add pie chart data
-                sentiment_data["chart_labels"] = ["Positive", "Negative", "Neutral"]
-                sentiment_data["chart_values"] = [
-                    1 if sentiment_data["sentiment"] == "positive" else 0,
-                    1 if sentiment_data["sentiment"] == "negative" else 0,
-                    1 if sentiment_data["sentiment"] == "neutral" else 0,
-                ]
+        article = Article(
+            brand=brand,
+            title=title,
+            sentiment=sentiment,
+            score=score,
+            content=content
+        )
+        db.session.add(article)
+        db.session.commit()
 
-            # Multi-line → summary
-            else:
-                sentiment_data = get_sentiment_summary(lines)
+        return redirect(url_for("upload.analyze", article_id=article.id))
 
-            session["sentiment_data"] = sentiment_data
-            session["text_content"] = text_content[:500] + "..." if len(text_content) > 500 else text_content
+    return render_template("upload.html")
 
-            return redirect(url_for("main.analyze"))
 
-    # Render upload form for GET requests or if validation fails
-    return render_template("upload.html", form=form, user=current_user)
+@upload_bp.route("/analyze/<int:article_id>")
+@login_required
+def analyze(article_id):
+    article = db.session.get(Article, article_id)
+    if not article:
+        return redirect(url_for("upload.upload"))
+
+    return render_template("analyze.html", article=article)
