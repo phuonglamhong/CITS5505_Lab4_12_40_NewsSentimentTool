@@ -1,358 +1,226 @@
-// Store chart instance globally so it can be updated safely
+// Deselect all brands
+function selectNone() {
+    document.querySelectorAll('.brand-checkbox').forEach(function(cb) {
+        cb.checked = false;
+    });
+}
+
+// Store chart instance globally
 let chart;
 
-
-
-// Filters competitor brand rows dynamically based on search input.
+// Filter brand rows by search input
 function filterBrands() {
-
-    const query =
-        document.getElementById('brand-search')
-            .value
-            .toLowerCase();
-
-    document.querySelectorAll('.brand-row').forEach(row => {
-
-        const name =
-            row.dataset.brand.toLowerCase();
-
-        row.style.display =
-            name.includes(query)
-                ? ''
-                : 'none';
+    var query = document.getElementById('brand-search').value.toLowerCase();
+    var rows = document.querySelectorAll('.brand-row');
+    rows.forEach(function(row) {
+        var name = row.dataset.brand.toLowerCase();
+        row.style.display = name.includes(query) ? '' : 'none';
     });
 }
 
+// Select all brand checkboxes
+function selectAll() {
+    document.querySelectorAll('.brand-checkbox').forEach(function(cb) {
+        cb.checked = true;
+    });
+    applyFilter();
+}
 
-// Dynamically creates competitor sentiment cards from API data.
+// Apply selected brands filter and reload data
+function applyFilter() {
+    var selected = [];
+    document.querySelectorAll('.brand-checkbox:checked').forEach(function(cb) {
+        selected.push(cb.value);
+    });
+    loadData(selected);
+}
+
+// Render brand sentiment cards
 function renderBrands(data) {
-
-    const brandList =
-        document.getElementById('brand-list');
-
-    // Clear previous content
+    var brandList = document.getElementById('brand-list');
+    if (!brandList) return;
     brandList.innerHTML = '';
 
-    data.forEach(brand => {
+    if (data.length === 0) {
+        brandList.innerHTML = '<p class="text-muted text-center p-3">No brands selected.</p>';
+        return;
+    }
 
-        brandList.innerHTML += `
+    data.forEach(function(brand) {
+        var card = document.createElement('div');
+        card.className = 'brand-row border rounded p-3 mb-3';
+        card.dataset.brand = brand.name;
 
-            <div
-                class="brand-row border rounded p-3 mb-3"
-                data-brand="${brand.name}"
-            >
+        var header = document.createElement('div');
+        header.className = 'd-flex justify-content-between align-items-center';
 
-                <div class="d-flex justify-content-between align-items-center">
+        var info = document.createElement('div');
+        var title = document.createElement('h5');
+        title.className = 'mb-1';
+        title.textContent = brand.name;
+        var subtitle = document.createElement('small');
+        subtitle.className = 'text-muted';
+        subtitle.textContent = brand.articles + ' articles analysed';
+        info.appendChild(title);
+        info.appendChild(subtitle);
 
-                    <div>
+        var scoreBadge = document.createElement('span');
+        scoreBadge.className = 'badge bg-primary';
+        scoreBadge.textContent = 'Score ' + brand.score;
 
-                        <h5 class="mb-1">
-                            ${brand.name}
-                        </h5>
+        header.appendChild(info);
+        header.appendChild(scoreBadge);
 
-                        <small class="text-muted">
-                            ${brand.articles} articles analysed
-                        </small>
+        var bars = document.createElement('div');
+        bars.className = 'mt-3';
 
-                    </div>
+        var sentiments = [
+            { label: 'Positive', value: brand.pos, color: 'bg-success' },
+            { label: 'Neutral',  value: brand.neu, color: 'bg-warning' },
+            { label: 'Negative', value: brand.neg, color: 'bg-danger'  }
+        ];
 
-                    <span class="badge bg-primary">
-                        Score ${brand.score}
-                    </span>
+        sentiments.forEach(function(s) {
+            var wrapper = document.createElement('div');
+            wrapper.className = 'mb-2';
 
-                </div>
+            var labelRow = document.createElement('div');
+            labelRow.className = 'd-flex justify-content-between';
+            var labelLeft = document.createElement('span');
+            labelLeft.textContent = s.label;
+            var labelRight = document.createElement('span');
+            labelRight.textContent = s.value + '%';
+            labelRow.appendChild(labelLeft);
+            labelRow.appendChild(labelRight);
 
-                <div class="mt-3">
+            var progress = document.createElement('div');
+            progress.className = 'progress';
+            var bar = document.createElement('div');
+            bar.className = 'progress-bar ' + s.color;
+            bar.style.width = s.value + '%';
+            progress.appendChild(bar);
 
-                    <div class="mb-2">
+            wrapper.appendChild(labelRow);
+            wrapper.appendChild(progress);
+            bars.appendChild(wrapper);
+        });
 
-                        <div class="d-flex justify-content-between">
-                            <span>Positive</span>
-                            <span>${brand.pos}%</span>
-                        </div>
-
-                        <div class="progress">
-                            <div
-                                class="progress-bar bg-success"
-                                style="width:${brand.pos}%"
-                            ></div>
-                        </div>
-
-                    </div>
-
-                    <div class="mb-2">
-
-                        <div class="d-flex justify-content-between">
-                            <span>Neutral</span>
-                            <span>${brand.neu}%</span>
-                        </div>
-
-                        <div class="progress">
-                            <div
-                                class="progress-bar bg-warning"
-                                style="width:${brand.neu}%"
-                            ></div>
-                        </div>
-
-                    </div>
-
-                    <div>
-
-                        <div class="d-flex justify-content-between">
-                            <span>Negative</span>
-                            <span>${brand.neg}%</span>
-                        </div>
-
-                        <div class="progress">
-                            <div
-                                class="progress-bar bg-danger"
-                                style="width:${brand.neg}%"
-                            ></div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-        `;
+        card.appendChild(header);
+        card.appendChild(bars);
+        brandList.appendChild(card);
     });
 }
 
+// Render summary table
+function renderSummary(data) {
+    var summary = document.getElementById('summary-body');
+    if (!summary) return;
+    summary.innerHTML = '';
 
-// Creates and updates Chart.js bar chart for sentiment comparison.
+    data.forEach(function(b) {
+        var row = document.createElement('tr');
+        var cells = [b.name, b.score, b.articles, b.neg + '%'];
+        cells.forEach(function(val) {
+            var td = document.createElement('td');
+            td.textContent = val;
+            row.appendChild(td);
+        });
+        summary.appendChild(row);
+    });
+}
+
+// Render bar chart
 function loadChart(data) {
+    var ctx = document.getElementById('competitorChart');
+    if (!ctx) return;
 
-    const ctx =
-        document.getElementById('competitorChart');
+    var labels   = data.map(function(b) { return b.name; });
+    var positive = data.map(function(b) { return b.pos; });
+    var neutral  = data.map(function(b) { return b.neu; });
+    var negative = data.map(function(b) { return b.neg; });
 
-    const labels =
-        data.map(b => b.name);
-
-    const positive =
-        data.map(b => b.pos);
-
-    const neutral =
-        data.map(b => b.neu);
-
-    const negative =
-        data.map(b => b.neg);
-
-    // Destroy old chart before re-rendering
-    if (chart) {
-
-        chart.destroy();
-    }
+    if (chart) { chart.destroy(); }
 
     chart = new Chart(ctx, {
-
         type: 'bar',
-
         data: {
-
             labels: labels,
-
             datasets: [
-
-                {
-                    label: 'Positive',
-                    data: positive,
-                    backgroundColor: 'green'
-                },
-
-                {
-                    label: 'Neutral',
-                    data: neutral,
-                    backgroundColor: 'gold'
-                },
-
-                {
-                    label: 'Negative',
-                    data: negative,
-                    backgroundColor: 'red'
-                }
+                { label: 'Positive', data: positive, backgroundColor: 'green' },
+                { label: 'Neutral',  data: neutral,  backgroundColor: 'gold'  },
+                { label: 'Negative', data: negative, backgroundColor: 'red'   }
             ]
         },
-
         options: {
-
             responsive: true,
             maintainAspectRatio: false
         }
     });
 }
 
+// Fetch data from API with optional brand filter
+function loadData(selectedBrands) {
+    var url = '/api/competitors';
+    if (selectedBrands && selectedBrands.length > 0) {
+        var params = selectedBrands.map(function(b) {
+            return 'brands=' + encodeURIComponent(b);
+        }).join('&');
+        url += '?' + params;
+    }
 
-// Displays competitor statistics inside summary table.
-function renderSummary(data) {
-
-    const summary =
-        document.getElementById('summary-body');
-
-    // Clear previous table rows
-    summary.innerHTML = '';
-
-    data.forEach(b => {
-
-        summary.innerHTML += `
-
-            <tr>
-
-                <td>${b.name}</td>
-
-                <td>${b.score}</td>
-
-                <td>${b.articles}</td>
-
-                <td>${b.neg}%</td>
-
-            </tr>
-        `;
-    });
-}
-
-
-// Fetches competitor analysis data from Flask API endpoint.
-function loadData() {
-
-    fetch('/api/competitors')
-
-        .then(response => response.json())
-
-        .then(data => {
-
+    fetch(url)
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             renderBrands(data);
-
             renderSummary(data);
-
             loadChart(data);
         })
-
-        .catch(err => {
-
-            console.error(
-                'Failed to load competitor data:',
-                err
-            );
+        .catch(function(err) {
+            console.error('Failed to load competitor data:', err);
         });
 }
 
-
-// Allows users to post collaboration discussion comments dynamically.
+// Add discussion comment
 function addDiscussion() {
+    var input = document.getElementById('discussion-input');
+    var discussionList = document.getElementById('discussion-list');
+    var text = input.value.trim();
 
-    const input =
-        document.getElementById('discussion-input');
-
-    const discussionList =
-        document.getElementById('discussion-list');
-
-    const text =
-        input.value.trim();
-
-    // Prevent empty submissions
     if (text === '') {
-
         alert('Please enter a discussion comment.');
-
         return;
     }
 
-    // Create new discussion card
-    const discussionItem =
-        document.createElement('div');
+    var item = document.createElement('div');
+    item.className = 'discussion-item mb-3 p-3 border rounded';
 
-    discussionItem.className =
-        'discussion-item mb-3 p-3 border rounded';
+    var header = document.createElement('div');
+    header.className = 'd-flex justify-content-between';
+    var name = document.createElement('strong');
+    name.textContent = 'Team Member';
+    var badge = document.createElement('span');
+    badge.className = 'badge bg-primary';
+    badge.textContent = 'New Comment';
+    header.appendChild(name);
+    header.appendChild(badge);
 
-    discussionItem.innerHTML = `
+    var content = document.createElement('p');
+    content.className = 'mt-2 mb-1';
+    content.textContent = text;
 
-        <div class="d-flex justify-content-between">
+    var time = document.createElement('small');
+    time.className = 'text-muted';
+    time.textContent = 'Just now';
 
-            <strong>Team Member</strong>
+    item.appendChild(header);
+    item.appendChild(content);
+    item.appendChild(time);
 
-            <span class="badge bg-primary">
-                New Comment
-            </span>
-
-        </div>
-
-        <p class="mt-2 mb-1">
-            ${text}
-        </p>
-
-        <small class="text-muted">
-            Just now
-        </small>
-    `;
-
-    // Add newest comment at top
-    discussionList.prepend(discussionItem);
-
-    // Clear input after posting
+    discussionList.prepend(item);
     input.value = '';
 }
 
-
-// Allows users to post collaboration discussion comments dynamically.
-function addDiscussion() {
-
-    const input =
-        document.getElementById('discussion-input');
-
-    const discussionList =
-        document.getElementById('discussion-list');
-
-    const text =
-        input.value.trim();
-
-    // Prevent empty submissions
-    if (text === '') {
-
-        alert('Please enter a discussion comment.');
-
-        return;
-    }
-
-    // Create new discussion card
-    const discussionItem =
-        document.createElement('div');
-
-    discussionItem.className =
-        'discussion-item mb-3 p-3 border rounded';
-
-    discussionItem.innerHTML = `
-
-        <div class="d-flex justify-content-between">
-
-            <strong>Team Member</strong>
-
-            <span class="badge bg-primary">
-                New Comment
-            </span>
-
-        </div>
-
-        <p class="mt-2 mb-1">
-            ${text}
-        </p>
-
-        <small class="text-muted">
-            Just now
-        </small>
-    `;
-
-    // Add newest comment at top
-    discussionList.prepend(discussionItem);
-
-    // Clear input after posting
-    input.value = '';
-}
-
-
-
-// Loads competitor data when page finishes loading.
-document.addEventListener(
-    'DOMContentLoaded',
-    loadData
-);
+// Load all brands on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadData([]);
+});
