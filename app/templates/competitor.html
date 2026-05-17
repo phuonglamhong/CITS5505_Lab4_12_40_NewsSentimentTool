@@ -1,211 +1,146 @@
 {% extends "base.html" %}
 
-{% block title %}Competitor Analysis{% endblock %}
+{% block title %}Competitor Analysis · BrandPulse{% endblock %}
 
 {% block content %}
+<div style="display:flex; min-height:100vh; background:var(--bg-light);">
 
-<!-- Top navigation bar -->
-<div class="topbar">
-    <span class="topbar-title">Competitor Analysis</span>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Brand<span>Pulse</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="{{ url_for('main.feed') }}"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('competitor.competitor_page') }}" class="active"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
+      <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
+    </ul>
+    <div class="sidebar-footer">BrandPulse © 2026</div>
+  </div>
 
-    <!-- Alert and tracking summary -->
-    <div class="topbar-right">
-        <span>
-            <i class="fa fa-bell text-warning me-1"></i>
-            3 alerts
-        </span>
+  <!-- MAIN -->
+  <div class="main-wrapper">
 
-        <span class="text-muted">
-            4 brands tracked
-        </span>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Competitor Analysis</div>
+      <div class="topbar-right">
+        <span><i class="fa fa-bell text-warning me-1"></i> 3 alerts</span>
+        <span style="color:var(--text-muted);">4 brands tracked</span>
+      </div>
     </div>
-</div>
 
-<div class="page-content">
+    <div class="page-content">
 
-    <!-- Insight banner -->
-    <div class="alert alert-info mb-4" style="font-size:0.88rem;">
+      <!-- Insight banner -->
+      <div class="alert alert-info mb-4" style="font-size:0.88rem;">
         <i class="fa fa-lightbulb me-2"></i>
-
         <strong>Insight:</strong>
         Tesla carries the highest negative coverage rate this period at 40%,
         while Apple leads overall with a sentiment score of 7.4.
-    </div>
+      </div>
 
-    <div class="row g-3">
+      <div class="row g-3">
 
         <!-- Left Column -->
         <div class="col-lg-7">
-
-            <div class="card">
-                <!-- Card header -->
-                <div class="card-header-custom d-flex justify-content-between align-items-center">
-
-                    <span>Brand Sentiment Comparison</span>
-                    <!-- Search input -->
-                    <input type="text" class="form-control form-control-sm" id="brand-search"
-                        placeholder="Search brand..." style="width:160px;" oninput="filterBrands()">
-                </div>
-
-                <!-- Dynamic content -->
-                <div class="p-3" id="brand-list"></div>
-
+          <div class="card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+              <span>Brand Sentiment Comparison</span>
+              <input type="text" class="form-control form-control-sm" id="brand-search"
+                placeholder="Search brand..." style="width:160px;" oninput="filterBrands()">
             </div>
+            <div class="p-3" id="brand-list"></div>
+          </div>
         </div>
 
         <!-- Right Column -->
         <div class="col-lg-5">
 
-            <!-- Summary -->
-            <div class="card mb-3">
-
-                <div class="card-header-custom">
-                    Summary
-                </div>
-
-                <div class="p-3">
-
-                    <table class="data-table">
-
-                        <thead>
-                            <tr>
-                                <th>Brand</th>
-                                <th>Score</th>
-                                <th>Articles</th>
-                                <th>Neg %</th>
-                            </tr>
-                        </thead>
-                        <!-- Dynamic summary rows -->
-                        <tbody id="summary-body">
-                        </tbody>
-
-                    </table>
-
-                </div>
+          <!-- Summary Table -->
+          <div class="card mb-3">
+            <div class="card-header-custom">Summary</div>
+            <div class="p-3">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Brand</th>
+                    <th>Score</th>
+                    <th>Articles</th>
+                    <th>Neg %</th>
+                  </tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+              </table>
             </div>
+          </div>
 
-            <!-- Chart -->
-            <div class="card mb-3">
-
-                <div class="card-header-custom">
-                    Sentiment Comparison Chart
-                </div>
-
-                <div class="p-3">
-                    <canvas id="competitorChart"></canvas>
-                </div>
-
+          <!-- Chart -->
+          <div class="card mb-3">
+            <div class="card-header-custom">Sentiment Comparison Chart</div>
+            <div class="p-3" style="position:relative; height:260px;">
+              <canvas id="competitorChart"></canvas>
             </div>
+          </div>
 
-            <!-- Sentiment Legend -->
-            <div class="card">
-
-                <div class="card-header-custom">
-                    Coverage Legend
-                </div>
-
-                <div class="p-3">
-
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <div style="width:16px;height:16px;background:green;border-radius:3px;"></div>
-                        Positive coverage
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <div style="width:16px;height:16px;background:gold;border-radius:3px;"></div>
-                        Neutral coverage
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width:16px;height:16px;background:red;border-radius:3px;"></div>
-                        Negative coverage
-                    </div>
-
-                </div>
+          <!-- Legend -->
+          <div class="card">
+            <div class="card-header-custom">Coverage Legend</div>
+            <div class="p-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div style="width:16px;height:16px;background:green;border-radius:3px;"></div>
+                Positive coverage
+              </div>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div style="width:16px;height:16px;background:gold;border-radius:3px;"></div>
+                Neutral coverage
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:16px;height:16px;background:red;border-radius:3px;"></div>
+                Negative coverage
+              </div>
             </div>
+          </div>
 
         </div>
-    </div>
+      </div>
 
-    <!-- Analysis Collaboration Section -->
-    <div class="card mt-4">
-
-        <div class="card-header-custom">
-            Analysis Discussion & Team Collaboration
-        </div>
-
+      <!-- Analysis Discussion Section -->
+      <div class="card mt-4">
+        <div class="card-header-custom">Analysis Discussion &amp; Team Collaboration</div>
         <div class="p-3">
-
-            <!-- Discussion description -->
-            <p class="text-muted mb-4">
-                Team members can review sentiment results, discuss article accuracy,
-                and flag potential sentiment misclassifications.
-            </p>
-
-            <!-- Comment input -->
-            <div class="mb-4">
-
-                <textarea class="form-control" id="discussion-input" rows="3"
-                    placeholder="Share analysis insights or flag sentiment issues..."></textarea>
-
-                <div class="d-flex justify-content-end mt-2">
-
-                    <button class="btn btn-primary btn-sm" onclick="addDiscussion()">
-                        Post Comment
-                    </button>
-
-                </div>
-
+          <p class="text-muted mb-4">
+            Team members can review sentiment results, discuss article accuracy,
+            and flag potential sentiment misclassifications.
+          </p>
+          <div class="mb-4">
+            <textarea class="form-control" id="discussion-input" rows="3"
+              placeholder="Share analysis insights or flag sentiment issues..."></textarea>
+            <div class="d-flex justify-content-end mt-2">
+              <button class="btn btn-primary btn-sm" onclick="addDiscussion()">Post Comment</button>
             </div>
-
-            <!-- Discussion list -->
-            <div id="discussion-list">
-
-                <!-- Example discussion item -->
-                <div class="discussion-item mb-3 p-3 border rounded">
-
-                    <div class="d-flex justify-content-between">
-
-                        <strong>Analyst Team</strong>
-
-                        <span class="badge bg-warning text-dark">
-                            Misclassification
-                        </span>
-
-                    </div>
-
-                    <p class="mt-2 mb-1">
-                        Tesla sentiment appears unusually negative this week.
-                        Recommend manual review of source articles.
-                    </p>
-
-                    <small class="text-muted">
-                        2 replies • 5 mins ago
-                    </small>
-
-                </div>
-
+          </div>
+          <div id="discussion-list">
+            <div class="discussion-item mb-3 p-3 border rounded">
+              <div class="d-flex justify-content-between">
+                <strong>Analyst Team</strong>
+                <span class="badge bg-warning text-dark">Misclassification</span>
+              </div>
+              <p class="mt-2 mb-1">
+                Tesla sentiment appears unusually negative this week.
+                Recommend manual review of source articles.
+              </p>
+              <small class="text-muted">2 replies • 5 mins ago</small>
             </div>
-
+          </div>
         </div>
+      </div>
 
     </div>
-
-
+  </div>
 </div>
-
-
-
-
 {% endblock %}
 
 {% block scripts %}
-
-<!-- Scripts -->
-<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Competitor analysis functionality -->
 <script src="{{ url_for('static', filename='js/competitor.js') }}"></script>
-
 {% endblock %}

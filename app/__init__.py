@@ -14,6 +14,8 @@ from flask_mail import Mail
 # Flask-Login
 from flask_login import LoginManager
 
+# Flask-Migrate for database migrations
+from flask_migrate import Migrate
 # Database instance
 db = SQLAlchemy()
 # Enable CSRF protection
@@ -62,6 +64,13 @@ def create_app():
     login_manager.login_view = "users.login"   # redirect here when not logged in
     login_manager.session_protection = "strong" # Strong session protection
 
+    # Attach CSRF protection to the app
+    csrf.init_app(app)   
+    # Initialize Flask-Mail
+    mail.init_app(app)  
+    # Set up Flask-Migrate for database migrations 
+    migrate = Migrate(app, db)  
+    
     # Register models
     from app.models.user import User
     from app.models.article import Article
