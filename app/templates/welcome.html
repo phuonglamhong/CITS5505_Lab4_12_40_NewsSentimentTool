@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Welcome — News Sentiment Analyzer{% endblock %}
+{% block body_class %}min-h-screen font-sans bg-gradient-to-br from-blue-100 via-gray-100 to-white text-gray-900{% endblock %}
+
+{% block content %}
+
+<header class="px-8 py-6 flex justify-between items-center bg-white/80 backdrop-blur shadow-sm sticky top-0 z-10">
+  <h1 class="text-xl font-bold text-blue-700">News Sentiment Analyzer</h1>
+</header>
+
+<section class="animate-on-scroll max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+  <div>
+    <h2 class="text-4xl font-bold mb-4">Understand the Emotion Behind the Headlines</h2>
+    <p class="text-gray-600 mb-6 leading-relaxed">
+      Our News Sentiment Analyzer uses Natural Language Processing (NLP) to evaluate whether news articles
+      express positive, negative, or neutral sentiment. Designed for analysts, students, and researchers,
+      the platform transforms raw news into actionable insights.
+    </p>
+    <button onclick="goStart()"
+      class="px-6 py-3 bg-blue-700 text-white rounded-full font-semibold shadow-lg hover:-translate-y-1 transition">
+      Get Started
+    </button>
+  </div>
+
+  <div class="flex justify-center">
+    <div class="float bg-white p-6 rounded-xl shadow-xl w-64">
+      <p class="font-semibold mb-3 text-center">Live Sentiment</p>
+      <div class="mb-3">
+        <div class="flex justify-between text-sm"><span>Positive</span><span>70%</span></div>
+        <div class="h-2 bg-gray-200 rounded"><div class="h-2 bg-green-500 rounded w-[70%]"></div></div>
+      </div>
+      <div class="mb-3">
+        <div class="flex justify-between text-sm"><span>Neutral</span><span>20%</span></div>
+        <div class="h-2 bg-gray-200 rounded"><div class="h-2 bg-gray-500 rounded w-[20%]"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-sm"><span>Negative</span><span>10%</span></div>
+        <div class="h-2 bg-gray-200 rounded"><div class="h-2 bg-red-500 rounded w-[10%]"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="animate-on-scroll max-w-4xl mx-auto px-6 py-10 text-center">
+  <h3 class="text-2xl font-bold mb-4">What is News Sentiment Analysis?</h3>
+  <p class="text-gray-600 leading-relaxed">
+    News Sentiment Analysis applies machine learning and NLP techniques to classify the emotional tone of
+    news content. It helps organizations monitor public opinion, detect trends, and make data-driven
+    decisions efficiently.
+  </p>
+</section>
+
+<section class="animate-on-scroll max-w-5xl mx-auto px-6 py-10 grid sm:grid-cols-2 gap-6">
+  <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+    <h4 class="font-bold mb-2">📂 Upload Content</h4>
+    <p class="text-gray-500">Upload or paste news articles easily.</p>
+  </div>
+  <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+    <h4 class="font-bold mb-2">🧠 Smart Analysis</h4>
+    <p class="text-gray-500">AI-powered sentiment detection.</p>
+  </div>
+  <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+    <h4 class="font-bold mb-2">📊 Visual Insights</h4>
+    <p class="text-gray-500">Clear and intuitive results.</p>
+  </div>
+  <div class="p-6 bg-white rounded-xl shadow transition transform hover:-translate-y-2 hover:shadow-xl">
+    <h4 class="font-bold mb-2">💬 Collaboration</h4>
+    <p class="text-gray-500">Discuss insights with your team.</p>
+  </div>
+</section>
+
+<section class="animate-on-scroll max-w-5xl mx-auto px-6 py-10 text-center">
+  <h3 class="text-2xl font-bold mb-6">How It Works</h3>
+  <div class="flex items-center justify-center gap-4 text-lg">
+    <span class="bg-white px-4 py-2 rounded shadow">Upload</span>
+    <span class="animate-pulse">→</span>
+    <span class="bg-white px-4 py-2 rounded shadow">Analyze</span>
+    <span class="animate-pulse">→</span>
+    <span class="bg-white px-4 py-2 rounded shadow">Results</span>
+  </div>
+</section>
+
+<section class="animate-on-scroll max-w-4xl mx-auto px-6 py-10">
+  <h3 class="text-2xl font-bold text-center mb-6">What Users Say</h3>
+  <div class="space-y-4">
+    <div class="flex gap-3 items-start bg-white p-4 rounded-xl shadow">
+      <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold">A</div>
+      <div>
+        <p>This tool helped me analyze market trends quickly!</p>
+        <span class="text-sm text-gray-500">— Analyst</span>
+      </div>
+    </div>
+    <div class="flex gap-3 items-start bg-white p-4 rounded-xl shadow">
+      <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center font-bold">S</div>
+      <div>
+        <p>Super easy to use and very intuitive interface!</p>
+        <span class="text-sm text-gray-500">— Student</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="animate-on-scroll max-w-4xl mx-auto px-6 py-10">
+  <h3 class="text-2xl font-bold text-center mb-6">FAQs</h3>
+  <div class="space-y-4">
+    <div>
+      <button onclick="toggleFAQ(1)" class="w-full text-left font-semibold bg-white p-4 rounded-xl shadow">
+        What is sentiment analysis?
+      </button>
+      <div id="faq1" class="faq-content px-4 text-gray-600">
+        It determines whether text expresses positive, negative, or neutral emotion.
+      </div>
+    </div>
+    <div>
+      <button onclick="toggleFAQ(2)" class="w-full text-left font-semibold bg-white p-4 rounded-xl shadow">
+        Is my data secure?
+      </button>
+      <div id="faq2" class="faq-content px-4 text-gray-600">
+        This is a demo project; production systems include full security measures.
+      </div>
+    </div>
+    <div>
+      <button onclick="toggleFAQ(3)" class="w-full text-left font-semibold bg-white p-4 rounded-xl shadow">
+        What formats are supported?
+      </button>
+      <div id="faq3" class="faq-content px-4 text-gray-600">
+        You can paste text or upload basic files.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="text-center py-12">
+  <h3 class="text-2xl font-bold mb-4">Start analyzing news today</h3>
+  <button onclick="goStart()"
+    class="px-6 py-3 bg-blue-700 text-white rounded-full font-semibold shadow hover:opacity-90">
+    Get Started
+  </button>
+</section>
+
+<footer class="text-center py-6 text-gray-500 text-sm">
+  © 2026 News Sentiment Analyzer | Academic Project
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>
+  var startUrl = "{{ url_for('main.dashboard') if session.get('user_id') else url_for('users.login') }}";
+
+  function goStart() {
+    window.location.href = startUrl;
+  }
+
+  function toggleFAQ(id) {
+    document.getElementById("faq" + id).classList.toggle("faq-open");
+  }
+</script>
+<script src="{{ url_for('static', filename='js/welcome.js') }}"></script>
+{% endblock %}

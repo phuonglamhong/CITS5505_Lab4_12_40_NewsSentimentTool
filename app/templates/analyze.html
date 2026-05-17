@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Analysis Result · BrandPulse{% endblock %}
+
+{% block content %}
+<div style="display:flex; min-height:100vh; background:var(--bg-light);">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Brand<span>Pulse</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="{{ url_for('main.feed') }}"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('upload.upload') }}" class="active"><i class="fa-solid fa-upload"></i> Upload to Analysis</a></li>
+      <li><a href="{{ url_for('competitor.competitor_page') }}"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
+      <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
+    </ul>
+    <div class="sidebar-footer">BrandPulse © 2026</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Analysis Result</div>
+      <div class="topbar-right">
+        <span style="font-size:0.88rem;">{{ current_user.name }}</span>
+        <a href="{{ url_for('users.logout') }}" style="font-size:0.82rem; color:var(--text-muted);">Sign out</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Result card -->
+      <div class="card p-4 mb-3">
+
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem;">
+          <span style="font-size:0.82rem; font-weight:700; color:var(--primary);">{{ article.brand }}</span>
+          <span class="badge-{{ article.sentiment|lower }}">{{ article.sentiment }}</span>
+          <span style="font-size:0.75rem; font-weight:700; background:#eef2ff; color:#3730a3;
+                       padding:2px 10px; border-radius:20px; border:1px solid #c7d2fe;">
+            Score {{ article.score }}/10
+          </span>
+        </div>
+
+        <h2 style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin-bottom:1rem;">
+          {{ article.title }}
+        </h2>
+
+        <!-- Score bar -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:1.2rem;">
+          <span style="font-size:0.78rem; color:var(--text-muted); white-space:nowrap;">AI Confidence:</span>
+          <div style="flex:1;">
+            <div class="score-bar-wrap">
+              <div class="score-bar-fill"
+                   style="width:{{ (article.score * 10)|int }}%;
+                          background:{% if article.sentiment|lower == 'positive' %}var(--positive){% elif article.sentiment|lower == 'negative' %}var(--negative){% else %}var(--neutral){% endif %};">
+              </div>
+            </div>
+          </div>
+          <span style="font-size:0.78rem; font-weight:700;">{{ article.score }}/10</span>
+        </div>
+
+        <!-- Content preview -->
+        {% if article.content %}
+        <div style="font-size:0.88rem; color:#495057; line-height:1.75;
+                    background:#f8f9fa; padding:14px; border-radius:10px;">
+          {{ article.content[:400] }}{% if article.content|length > 400 %}…{% endif %}
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex; gap:12px;">
+        <a href="{{ url_for('upload.upload') }}"
+           class="btn btn-outline-primary"
+           style="border-radius:10px; flex:1; text-align:center;">
+          Upload Another
+        </a>
+        <a href="{{ url_for('comments.comments_page') }}"
+           class="btn btn-primary"
+           style="border-radius:10px; flex:1; text-align:center; background:var(--primary); border:none;">
+          View in Discussion →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+{% endblock %}

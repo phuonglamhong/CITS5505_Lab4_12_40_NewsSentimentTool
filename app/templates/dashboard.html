@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · BrandPulse{% endblock %}
+
+{% block content %}
+<div style="display:flex; min-height:100vh; background:var(--bg-light);">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Brand<span>Pulse</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('main.dashboard') }}" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="{{ url_for('main.feed') }}"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('upload.upload') }}"><i class="fa-solid fa-upload"></i> Upload to Analysis</a></li>
+      <li><a href="{{ url_for('competitor.competitor_page') }}"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
+      <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
+    </ul>
+    <div class="sidebar-footer">BrandPulse © 2026</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-right">
+        <span style="font-size:0.88rem;">{{ current_user.name }}</span>
+        <a href="{{ url_for('users.logout') }}"
+           style="font-size:0.82rem; color:var(--text-muted);">Sign out</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- WELCOME -->
+      <div style="margin-bottom:24px;">
+        <h2 style="margin:0; font-size:1.4rem;">Welcome back, {{ current_user.name }} 👋</h2>
+        <p style="color:var(--text-muted); margin:4px 0 0; font-size:0.9rem;">
+          Here's what's happening with your brand coverage today.
+        </p>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value">{{ counts.total }}</div>
+            <div class="stat-label">Total Articles</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--positive);">{{ counts.positive }}</div>
+            <div class="stat-label">Positive</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--neutral);">{{ counts.neutral }}</div>
+            <div class="stat-label">Neutral</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--negative);">{{ counts.negative }}</div>
+            <div class="stat-label">Negative</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ARTICLES -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="margin:0; font-size:1.05rem;">Recent Articles</h3>
+        <a href="{{ url_for('main.feed') }}"
+           style="font-size:0.85rem; font-weight:600; color:var(--accent);">
+          View all →
+        </a>
+      </div>
+
+      {% for article in recent_articles %}
+      <div class="article-item">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">
+            {{ article.brand }}
+          </span>
+          <span class="badge-{{ article.sentiment|lower }}">{{ article.sentiment }}</span>
+        </div>
+
+        <div class="article-title">
+          <a href="{{ url_for('comments.comments_page') }}">{{ article.title }}</a>
+        </div>
+
+        {% if article.content %}
+        <div class="article-preview">
+          {{ article.content[:120] }}{% if article.content|length > 120 %}…{% endif %}
+        </div>
+        {% endif %}
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+          <div style="display:flex; gap:14px; font-size:0.82rem; color:var(--text-muted);">
+            <span style="background:#f4f6f9; padding:2px 10px; border-radius:20px; font-weight:600;">
+              Score {{ article.score }}
+            </span>
+            <span>&#128172; {{ article.comment_count }} comment{{ 's' if article.comment_count != 1 else '' }}</span>
+            <span>&#128077; {{ article.like_count }} like{{ 's' if article.like_count != 1 else '' }}</span>
+          </div>
+          <a href="{{ url_for('comments.comments_page') }}"
+             style="font-size:0.85rem; font-weight:600; color:var(--accent);">
+            View Discussion →
+          </a>
+        </div>
+
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+{% endblock %}

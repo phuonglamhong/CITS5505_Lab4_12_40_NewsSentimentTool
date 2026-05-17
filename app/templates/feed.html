@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Media Feed — BrandPulse{% endblock %}
+
+{% block content %}
+<div style="display:flex; min-height:100vh; background:var(--bg-light);">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Brand<span>Pulse</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="{{ url_for('main.feed') }}" class="active"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('upload.upload') }}"><i class="fa-solid fa-upload"></i> Upload to Analysis</a></li>
+      <li><a href="{{ url_for('competitor.competitor_page') }}"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
+      <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
+    </ul>
+    <div class="sidebar-footer">BrandPulse © 2026</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Media Feed</div>
+      <div class="topbar-right">
+        <form method="GET" action="{{ url_for('main.feed') }}" style="display:flex; align-items:center; gap:8px;">
+          <input type="hidden" name="sentiment" value="{{ active_filter }}">
+          <input type="text" name="q" placeholder="Search title or keyword…"
+                 value="{{ search_query }}"
+                 style="border:1px solid var(--border); border-radius:10px; padding:6px 12px;
+                        font-size:0.85rem; outline:none; width:220px;">
+          <button type="submit"
+                  style="background:var(--primary); color:#fff; border:none; border-radius:10px;
+                         padding:6px 14px; font-size:0.85rem; cursor:pointer;">Search</button>
+        </form>
+        <span style="font-size:0.88rem;">{{ current_user.name }}</span>
+        <a href="{{ url_for('users.logout') }}" style="font-size:0.82rem; color:var(--text-muted);">Sign out</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- STAT CARDS -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value">{{ counts.total }}</div>
+            <div class="stat-label">Total Articles</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--positive);">{{ counts.positive }}</div>
+            <div class="stat-label">Positive</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--neutral);">{{ counts.neutral }}</div>
+            <div class="stat-label">Neutral</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card">
+            <div class="stat-value" style="color:var(--negative);">{{ counts.negative }}</div>
+            <div class="stat-label">Negative</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTER TABS -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+        {% for f in [('all','All'),('positive','Positive'),('neutral','Neutral'),('negative','Negative')] %}
+          <a href="{{ url_for('main.feed', sentiment=f[0], q=search_query) }}"
+             class="filter-tab {% if active_filter == f[0] %}active{% endif %}">
+            {{ f[1] }}
+          </a>
+        {% endfor %}
+      </div>
+
+      <!-- ARTICLE LIST -->
+      {% if articles %}
+        {% for article in articles %}
+        <div class="article-item">
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">
+              {{ article.brand }}
+            </span>
+            <span class="badge-{{ article.sentiment|lower }}">{{ article.sentiment }}</span>
+          </div>
+
+          <div class="article-title">
+            <a href="{{ url_for('comments.comments_page') }}">{{ article.title }}</a>
+          </div>
+
+          {% if article.content %}
+          <div class="article-preview">
+            {{ article.content[:150] }}{% if article.content|length > 150 %}…{% endif %}
+          </div>
+          {% endif %}
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+            <div style="display:flex; gap:14px; font-size:0.82rem; color:var(--text-muted);">
+              <span style="background:#f4f6f9; padding:2px 10px; border-radius:20px; font-weight:600;">
+                Score {{ article.score }}
+              </span>
+              <span>&#128172; {{ article.comment_count }} comment{{ 's' if article.comment_count != 1 else '' }}</span>
+              <span>&#128077; {{ article.like_count }} like{{ 's' if article.like_count != 1 else '' }}</span>
+            </div>
+            <a href="{{ url_for('comments.comments_page') }}"
+               style="font-size:0.85rem; font-weight:600; color:var(--accent);">
+              View Discussion →
+            </a>
+          </div>
+
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+          <i class="fa-regular fa-newspaper" style="font-size:2rem; margin-bottom:1rem; display:block;"></i>
+          <p>No articles match your filters. <a href="{{ url_for('main.feed') }}" style="color:var(--accent);">Clear filters</a></p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+{% endblock %}
