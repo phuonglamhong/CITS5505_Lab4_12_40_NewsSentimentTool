@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Competitor Analysis · BrandPulse{% endblock %}
 
 {% block content %}
@@ -11,6 +10,7 @@
     <ul class="sidebar-nav">
       <li><a href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
       <li><a href="{{ url_for('main.feed') }}"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('upload.upload') }}"><i class="fa-solid fa-upload"></i> Upload to Analysis</a></li>
       <li><a href="{{ url_for('competitor.competitor_page') }}" class="active"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
       <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
     </ul>
@@ -24,19 +24,32 @@
     <div class="topbar">
       <div class="topbar-title">Competitor Analysis</div>
       <div class="topbar-right">
-        <span><i class="fa fa-bell text-warning me-1"></i> 3 alerts</span>
-        <span style="color:var(--text-muted);">4 brands tracked</span>
+        <span><i class="fa fa-bell text-warning me-1"></i> Live data</span>
+        <span style="color:var(--text-muted);">{{ brand_list|length }} brands tracked</span>
       </div>
     </div>
 
     <div class="page-content">
 
-      <!-- Insight banner -->
-      <div class="alert alert-info mb-4" style="font-size:0.88rem;">
-        <i class="fa fa-lightbulb me-2"></i>
-        <strong>Insight:</strong>
-        Tesla carries the highest negative coverage rate this period at 40%,
-        while Apple leads overall with a sentiment score of 7.4.
+      {% if brand_list %}
+
+      <!-- Brand selector -->
+      <div class="card p-3 mb-4">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <strong style="font-size:0.9rem; white-space:nowrap;">Compare brands:</strong>
+          <div class="d-flex flex-wrap gap-2">
+            {% for brand in brand_list %}
+            <div class="form-check form-check-inline m-0">
+              <input class="form-check-input brand-checkbox" type="checkbox"
+                     id="brand-{{ loop.index }}" value="{{ brand }}" checked>
+              <label class="form-check-label" for="brand-{{ loop.index }}" style="cursor:pointer;">{{ brand }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="applyFilter()" style="border-radius:8px; white-space:nowrap;">Apply</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="selectAll()" style="border-radius:8px; white-space:nowrap;">All</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="selectNone()" style="border-radius:8px; white-space:nowrap;">None</button>
+        </div>
       </div>
 
       <div class="row g-3">
@@ -55,26 +68,18 @@
 
         <!-- Right Column -->
         <div class="col-lg-5">
-
-          <!-- Summary Table -->
           <div class="card mb-3">
             <div class="card-header-custom">Summary</div>
             <div class="p-3">
               <table class="data-table">
                 <thead>
-                  <tr>
-                    <th>Brand</th>
-                    <th>Score</th>
-                    <th>Articles</th>
-                    <th>Neg %</th>
-                  </tr>
+                  <tr><th>Brand</th><th>Score</th><th>Articles</th><th>Neg %</th></tr>
                 </thead>
                 <tbody id="summary-body"></tbody>
               </table>
             </div>
           </div>
 
-          <!-- Chart -->
           <div class="card mb-3">
             <div class="card-header-custom">Sentiment Comparison Chart</div>
             <div class="p-3" style="position:relative; height:260px;">
@@ -82,58 +87,30 @@
             </div>
           </div>
 
-          <!-- Legend -->
           <div class="card">
             <div class="card-header-custom">Coverage Legend</div>
             <div class="p-3">
               <div class="d-flex align-items-center gap-2 mb-2">
-                <div style="width:16px;height:16px;background:green;border-radius:3px;"></div>
-                Positive coverage
+                <div style="width:16px;height:16px;background:green;border-radius:3px;"></div>Positive
               </div>
               <div class="d-flex align-items-center gap-2 mb-2">
-                <div style="width:16px;height:16px;background:gold;border-radius:3px;"></div>
-                Neutral coverage
+                <div style="width:16px;height:16px;background:gold;border-radius:3px;"></div>Neutral
               </div>
               <div class="d-flex align-items-center gap-2">
-                <div style="width:16px;height:16px;background:red;border-radius:3px;"></div>
-                Negative coverage
+                <div style="width:16px;height:16px;background:red;border-radius:3px;"></div>Negative
               </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Analysis Discussion Section -->
-      <div class="card mt-4">
-        <div class="card-header-custom">Analysis Discussion &amp; Team Collaboration</div>
-        <div class="p-3">
-          <p class="text-muted mb-4">
-            Team members can review sentiment results, discuss article accuracy,
-            and flag potential sentiment misclassifications.
-          </p>
-          <div class="mb-4">
-            <textarea class="form-control" id="discussion-input" rows="3"
-              placeholder="Share analysis insights or flag sentiment issues..."></textarea>
-            <div class="d-flex justify-content-end mt-2">
-              <button class="btn btn-primary btn-sm" onclick="addDiscussion()">Post Comment</button>
-            </div>
-          </div>
-          <div id="discussion-list">
-            <div class="discussion-item mb-3 p-3 border rounded">
-              <div class="d-flex justify-content-between">
-                <strong>Analyst Team</strong>
-                <span class="badge bg-warning text-dark">Misclassification</span>
-              </div>
-              <p class="mt-2 mb-1">
-                Tesla sentiment appears unusually negative this week.
-                Recommend manual review of source articles.
-              </p>
-              <small class="text-muted">2 replies • 5 mins ago</small>
             </div>
           </div>
         </div>
       </div>
+
+      {% else %}
+      <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+        <i class="fa-solid fa-scale-balanced" style="font-size:2rem; margin-bottom:1rem; display:block;"></i>
+        <p>No articles in database yet.</p>
+        <a href="{{ url_for('upload.upload') }}" class="btn btn-primary btn-sm" style="border-radius:8px;">Upload Articles</a>
+      </div>
+      {% endif %}
 
     </div>
   </div>
