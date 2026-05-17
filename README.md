@@ -1,84 +1,77 @@
-# News Sentiment Analyzer
+# BrandPulse
+
+A web-based news sentiment monitoring platform built with Flask.
 
 ## Contributors
 
 | Student ID | Names           | GitHub usernames |
+| ---------- | --------------- | ---------------- |
 | 24758673   | Zunhao Zhang    | 33fish           |
 | 24600969   | Lola Xu         | Redlola          |
 | 24453423   | Hong Phuong Lam | phuonglamhong    |
 | 24717854   | K Ishwari Raj   | Kishwari         |
 
----
-
 ## Project Overview
 
-News Sentiment Analyzer is a Flask-based web application that allows users to analyse the sentiment of news-related content using Natural Language Processing (NLP) concepts. The system classifies content into positive, neutral and negative sentiment categories and presents the results through interactive visual dashboards and charts.
+BrandPulse is a web-based sentiment monitoring platform that helps users track public opinion, compare competitor sentiment trends, and interact with media content through an intuitive dashboard interface.
 
-The application was designed to provide users with a clean and intuitive platform for monitoring public opinion and comparing sentiment trends between different brands and topics.
+The application classifies content into positive, neutral and negative sentiment categories and visualises results through interactive charts, dashboards and discussion features.
 
 The system follows a client-server architecture using Flask on the backend and HTML, CSS, JavaScript, Bootstrap and Tailwind CSS on the frontend.
 
----
+## Features
 
-# Features
+* Interactive sentiment dashboard
+* Competitor sentiment comparison
+* News media feed
+* User authentication system
+* Comment and collaboration functionality
+* Responsive mobile-friendly interface
+* Dynamic frontend rendering using JavaScript and Fetch API
+* Persistent SQLite database storage
+* Flask Blueprints for modular backend structure
+* Unit testing for backend routes and models
 
-- User authentication (login/logout)
-- Persistent SQLite database storage
-- Competitor sentiment analysis dashboard
-- Interactive sentiment comparison charts
-- Dynamic frontend rendering using JavaScript and Fetch API
-- Responsive web design
-- Comment and discussion functionality
-- Flask Blueprints for modular backend structure
-- Unit testing for backend routes and models
+## Tech Stack
 
----
+### Frontend
 
-# Technologies Used
+* HTML5
+* CSS3
+* JavaScript
+* Bootstrap 5
+* Tailwind CSS
+* Chart.js
 
-## Frontend
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap 5
-- Tailwind CSS
-- Chart.js
+### Backend
 
-## Backend
-- Flask
-- Flask-WTF
-- Flask-SQLAlchemy
-- Flask-Mail
+* Flask
+* Flask-WTF
+* Flask-SQLAlchemy
+* Flask-Mail
 
-## Database
-- SQLite
-- SQLAlchemy ORM
+### Database
 
-## Testing
-- Python unittest
+* SQLite
+* SQLAlchemy ORM
 
----
+### Testing
 
-# Application Design
+* Python unittest
 
-The application was designed with the following goals:
+## Design Principles
 
-- **Engaging**  
-  A modern UI with charts, cards, dashboards and responsive layouts.
+The application was designed with a focus on:
 
-- **Effective**  
-  Allows users to understand sentiment trends and compare competitor performance visually.
+* Responsive user experience
+* Clear data visualisation
+* Modular backend architecture
+* Maintainable frontend structure
+* Scalable Flask application design
 
-- **Intuitive**  
-  Clean navigation and dynamically updated content improve usability.
+## Project Structure
 
-The project uses Flask Blueprints to separate routes into modular components and SQLAlchemy models to manage persistent application data.
-
----
-
-# Project Structure
-
-```text
+```
 app/
 │
 ├── migrations/
@@ -96,127 +89,164 @@ app/
 │
 ├── static/
 │   ├── css/
-│   └── js/
+│   ├── js/
+│   └── images/
 │
 ├── templates/
 │
-└── tests/
+├── tests/
+│
+├── instance/
+│
+├── requirements.txt
+└── run.py
 ```
 
----
+## Installation and Setup
 
-# Installation and Setup
+### 1. Clone the Repository
 
-## 1. Clone the Repository
-
-```bash
+```
 git clone https://github.com/phuonglamhong/CITS5505_Lab4_12_40_NewsSentimentTool.git
 cd CITS5505_Lab4_12_40_NewsSentimentTool
 ```
 
----
+### 2. Create a Virtual Environment
 
-## 2. Create a Virtual Environment
+#### Mac/Linux
 
-### Mac/Linux
-
-```bash
+```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Windows
+#### Windows
 
-```bash
+```
 python -m venv venv
 venv\Scripts\activate
 ```
 
----
+### 3. Install Required Dependencies
 
-## 3. Install Required Dependencies
-
-```bash
+```
 pip install -r requirements.txt
 ```
 
----
+### 4. Database Migration
 
-## 4. Run the Application
+For first-time setup:
+
+```
+flask db init
+```
+
+Run migrations:
+
+```
+flask db migrate
+flask db upgrade
+```
+
+### 5. Run the Application
 
 The application can be started using either of the following commands:
 
-```bash
+```
 flask run
 ```
 
 OR
 
-```bash
+```
 python run.py
 ```
 
----
-
-## 5. Open the Application
+### 6. Open the Application
 
 Open the following URL in your browser:
 
-```text
+```
 http://127.0.0.1:5000
 ```
 
----
+## Running Tests
 
-# Running Tests
-
-## Run All Unit Tests
+### Run All Unit Tests
 
 ```bash
 python -m unittest discover
 ```
 
-## Run one specific (e.g.,Competitor Analysis Tests Only)
+### Run Competitor Analysis Tests Only
 
 ```bash
 python -m unittest tests.test_competitor
 ```
 
----
+### Selenium Testing
 
-# Database
+Install Selenium:
+
+```bash
+pip install selenium
+```
+
+Install pytest:
+
+```bash
+pip install pytest
+```
+
+Download a matching version of ChromeDriver:
+
+[https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
+
+Run Selenium tests:
+
+```bash
+pytest tests/seleniumTest
+```
+
+
+## Database
 
 The application uses SQLite with SQLAlchemy ORM for persistent data storage.
 
 Database migrations are managed using Flask-Migrate.
 
----
+## Security Features
 
-# Security Features
+* Password hashing
+* CSRF protection using Flask-WTF
+* Secure Flask configuration
 
-- Password hashing
-- CSRF protection using Flask-WTF
-- Secure Flask configuration
-- Environment variable support
+## Development Workflow
 
----
+The project followed an Agile development workflow using:
 
-# Agile Development Process
+* Git branches
+* Pull requests
+* GitHub Issues
+* Code reviews
+* Incremental feature development
+* Regular commits with descriptive commit messages
 
-This project was developed using Agile development methodologies and GitHub collaboration workflows including:
+## Future Improvements
 
-- Git branches
-- Pull requests
-- GitHub Issues
-- Code reviews
-- Incremental feature development
-- Regular commits with descriptive commit messages
+* Real-time sentiment tracking
+* AI-generated article summaries
+* Notification system
+* Advanced search and filtering
+* Dark mode support
 
+## Screenshots
 
----
+![Competitor Analysis](static/images/competitor-analysis.png)
 
 This project was developed as part of:
-**CITS3403 / CITS5505 — Agile Web Development**
+
+CITS5505 — Agile Web Development
 The University of Western Australia
 
-© 2026
+
