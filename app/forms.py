@@ -6,7 +6,7 @@ The forms are designed to be rendered in the application's templates, providing 
 """
 from flask_wtf import FlaskForm
 from wtforms import (
-    StringField, PasswordField, SubmitField, BooleanField, SelectField
+    StringField, PasswordField, SubmitField, BooleanField, SelectField, TextAreaField
 )
 from wtforms.validators import (
     DataRequired, Email, EqualTo, Length
@@ -124,3 +124,11 @@ class DeleteAccountForm(FlaskForm):
         validators=[DataRequired(message="You must confirm to continue.")]
     )
     submit = SubmitField("Delete Account")
+
+# Form for uploading text for analysis
+class UploadForm(FlaskForm):
+    content = TextAreaField(
+        "Paste your text",
+        validators=[DataRequired(message="Please enter some text to analyze.")]
+    )
+    submit = SubmitField("Analyze Text")

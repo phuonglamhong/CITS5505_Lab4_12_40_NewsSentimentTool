@@ -9,6 +9,7 @@ from app import db
 from app.models.article import Article
 from app.models.comment import Comment
 from app.models.user import User
+from flask_login import current_user
 
 # Blueprint for comment and collaboration features
 comments_bp = Blueprint("comments", __name__)
@@ -18,7 +19,7 @@ def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         # Prevent access if session does not contain user ID
-        if "user_id" not in session:
+        if not current_user.is_authenticated:
             return jsonify({"status": "error", "message": "Please log in first."})
         return f(*args, **kwargs)
     return decorated
@@ -59,10 +60,6 @@ def comments_page():
             "like_count": sum(c.likes for c in top_comments)
         })
 
-    # Store current logged-in user information
-    current_user = None
-    if "user_id" in session:
-        current_user = User.query.get(session["user_id"])
     # Render collaboration discussion page
     return render_template(
         "comments.html",

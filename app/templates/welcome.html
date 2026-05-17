@@ -9,7 +9,7 @@ from-blue-100 via-gray-100 to-white text-gray-900{% endblock %} {% block content
   <h1 class="text-xl font-bold text-blue-700">News Sentiment Analyzer</h1>
 
   <div class="flex items-center gap-4">
-    {% if session.get('user_id') %}
+    {% if current_user.is_authenticated %}
 
     <!-- Dashboard stays outside -->
     <button
@@ -17,6 +17,20 @@ from-blue-100 via-gray-100 to-white text-gray-900{% endblock %} {% block content
       class="px-4 py-2 rounded-full bg-white/70 hover:bg-white font-semibold"
     >
       Dashboard
+    </button>
+
+    <!-- Upload stays outside -->
+    <button
+      onclick="window.location.href=`{{ url_for('upload.upload') }}`"
+      class="px-4 py-2 rounded-full bg-white/70 hover:bg-white font-semibold"
+    >
+      Upload
+    </button>
+    <button
+      onclick="window.location.href=`{{ url_for('main.analyze') }}`"
+      class="px-4 py-2 rounded-full bg-white/70 hover:bg-white font-semibold"
+    >
+      Analyze
     </button>
 
     <!-- Profile Dropdown -->
@@ -27,7 +41,7 @@ from-blue-100 via-gray-100 to-white text-gray-900{% endblock %} {% block content
           document.getElementById('profileMenu').classList.toggle('hidden')
         "
       >
-        Welcome, {{ session.user_name }}
+        {{ current_user.name }} account
         <i class="fa fa-chevron-down text-sm"></i>
       </button>
 
@@ -266,21 +280,29 @@ from-blue-100 via-gray-100 to-white text-gray-900{% endblock %} {% block content
 </footer>
 {% endblock %} {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
 <script>
-  const loginUrl = "{{ url_for('users.login_page') }}";
+  // Correct URLs
+  const loginUrl = "{{ url_for('users.login') }}";
   const dashboardUrl = "{{ url_for('main.dashboard') }}";
 
+  // Smart redirect using Flask‑Login
   const goUrl =
-    "{{ url_for('main.dashboard') if session.get('user_id') else url_for('users.login_page') }}";
+    "{% if current_user.is_authenticated %}{{ url_for('main.dashboard') }}{% else %}{{ url_for('users.login') }}{% endif %}";
 
   function goLogin() {
-    window.location.href = goUrl;
+    window.location.href = loginUrl;
+  }
+
+  function goDashboard() {
+    window.location.href = dashboardUrl;
   }
 
   function toggleFAQ(id) {
     document.getElementById("faq" + id).classList.toggle("faq-open");
   }
 
+  // Scroll animation
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {

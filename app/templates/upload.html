@@ -1,0 +1,37 @@
+<!-- This template provides a user interface for uploading text for sentiment analysis. -->
+{% extends "base.html" %} {% block title %}NewsSentiment — Upload{% endblock %}
+{% block body_class %}login-page{% endblock %} {% block content %}
+<div class="login-card">
+  <div class="login-logo">News<span>Sentiment</span></div>
+  <p class="login-subtitle">News sentiment intelligence platform</p>
+
+  <!-- TABS -->
+  <ul class="nav nav-tabs mb-4" id="uploadTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="manual-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#manual"
+        type="button"
+        role="tab"
+      >
+        Manual Upload
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="uploadTabContent">
+    <!-- =============================== -->
+    <!-- MANUAL UPLOAD TAB -->
+    <!-- =============================== -->
+    <div class="tab-pane active" id="manual" role="tabpanel">
+      <form method="POST" action="{{ url_for('upload.upload') }}">
+        {{ form.hidden_tag() }} {{ form.content.label(class="form-label
+        fw-semibold") }} {{ form.content(class="form-control mb-3", rows="8") }}
+        {{ form.submit(class="btn btn-primary w-100") }}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

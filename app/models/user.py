@@ -4,9 +4,10 @@
 from app import db
 from itsdangerous import URLSafeTimedSerializer
 from flask import current_app
+from flask_login import UserMixin
 
 # User model 
-class User(db.Model):
+class User(db.Model, UserMixin):
     # Database table name
     __tablename__ = "users"
 

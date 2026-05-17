@@ -11,14 +11,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 # Flask-Mail for email functionality
 from flask_mail import Mail
+# Flask-Login
+from flask_login import LoginManager
+
 # Flask-Migrate for database migrations
 from flask_migrate import Migrate
 # Database instance
 db = SQLAlchemy()
 # Enable CSRF protection
-csrf = CSRFProtect()   
+csrf = CSRFProtect()
 # Mail service instance
 mail = Mail()
+# Login manager instance
+login_manager = LoginManager()
+
 
 # Function to create and configure the Flask application
 def create_app():
@@ -51,6 +57,13 @@ def create_app():
 
     # Initialize the database with the application
     db.init_app(app)
+    csrf.init_app(app)   # Attach CSRF protection to the app
+    mail.init_app(app)   # Initialize Flask-Mail
+
+    login_manager.init_app(app)  # Initialize Flask-Login
+    login_manager.login_view = "users.login"   # redirect here when not logged in
+    login_manager.session_protection = "strong" # Strong session protection
+
     # Attach CSRF protection to the app
     csrf.init_app(app)   
     # Initialize Flask-Mail
@@ -71,10 +84,23 @@ def create_app():
     from app.routes.competitor import competitor_bp
     app.register_blueprint(competitor_bp)
 
+    # Register main routes
     from app.routes.main import main_bp
     app.register_blueprint(main_bp)
 
+    # Register comment routes
     from app.routes.comments import comments_bp
     app.register_blueprint(comments_bp)
+
+    # Register upload routes
+    from app.routes.upload import upload_bp
+    app.register_blueprint(upload_bp)
+
+    # User loader callback for Flask-Login
+    from app.models.user import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     return app

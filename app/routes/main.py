@@ -1,22 +1,22 @@
 # This file handles the main application pages including
 # dashboard, article feed, and sentiment testing routes.
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash
 from app.models.article import Article
 from app.models.user import User
 from app.models.comment import Comment
+import io, json
+from flask_login import login_required, current_user
 
 # Blueprint for main application routes
 main_bp = Blueprint("main", __name__)
 
 # Dashboard route displaying analytics overview
 @main_bp.route("/dashboard")
+@login_required
 def dashboard():
     # Redirect unauthenticated users to login page
-    if "user_id" not in session:
+    if not current_user.is_authenticated:
         return redirect(url_for("users.index"))
-
-    # Load current logged-in user
-    current_user = User.query.get(session["user_id"])
 
     # Load all stored articles
     all_articles = Article.query.all()
@@ -47,11 +47,8 @@ def dashboard():
 @main_bp.route("/feed")
 def feed():
     # Redirect users if not logged in
-    if "user_id" not in session:
+    if not current_user.is_authenticated:
         return redirect(url_for("users.index"))
-
-    # Load current logged-in user
-    current_user = User.query.get(session["user_id"])
 
     # Get filter parameters from URL
     sentiment = request.args.get("sentiment", "all")
@@ -125,4 +122,21 @@ def test_comments():
         "commentsTest.html",
         comments=processed_comments,
         summary=summary
+    )
+
+# Route for displaying sentiment analysis results after text upload
+@main_bp.route("/analyze")
+@login_required
+def analyze():
+    sentiment = session.get("sentiment_data")
+    text_content = session.get("text_content")
+
+    if not sentiment:
+        flash("No sentiment data available. Please select content first.", "warning")
+        return redirect(url_for("upload.upload"))
+
+    return render_template(
+        "analyze.html",
+        sentiment=sentiment,
+        text=text_content
     )

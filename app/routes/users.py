@@ -30,6 +30,7 @@ from app import db, mail
 from datetime import timedelta
 from flask_mail import Message
 from flask import flash
+from flask_login import login_user, logout_user, login_required, current_user
 
 # Blueprint for grouping all user authentication related routes
 users_bp = Blueprint("users", __name__)
@@ -40,17 +41,48 @@ users_bp = Blueprint("users", __name__)
 def index():
     return render_template("welcome.html")
 
+# ---------- USER LOGIN ----------
+# Authenticates user credentials.
+@users_bp.route("/login", methods=["POST", "GET"])
+def login():
+    form = LoginForm()
 
-@users_bp.route("/login")
-def login_page():
-    return render_template(
-        "login.html",
-        login_form=LoginForm(),
-        register_form=RegistForm(),
-        register_success=None,
-        active_tab="signin"
-    )
+    # If GET or invalid POST → show login page
+    if not form.validate_on_submit():
+        return render_template(
+            "login.html",
+            login_form=form,
+            register_form=RegistForm(),
+            register_success=None,
+            active_tab="signin"
+        )
 
+    email = form.email.data
+    password = form.password.data
+    remember_me = form.remember_me.data
+
+    user = User.query.filter_by(email=email).first()
+
+    # Invalid credentials
+    if not user or not check_password_hash(user.password, password):
+        form.email.errors.append("Invalid email or password.")
+        return render_template(
+            "login.html",
+            login_form=form,
+            register_form=RegistForm(),
+            register_success=None
+        )
+
+    # Store user ID in session for authentication using flask-login
+    login_user(user, remember=remember_me)
+
+    # handle ?next=/upload
+    next_page = request.args.get("next")
+    if next_page:
+        return redirect(next_page)
+
+    # Default redirect
+    return redirect(url_for("users.index"))
 
 # ---------- REGISTER ----------
 # Handles new user registration.
@@ -101,61 +133,19 @@ def register():
         active_tab="register"
     )
 
-
-# ---------- USER LOGIN ----------
-# Authenticates user credentials.
-@users_bp.route("/login", methods=["POST"])
-def login():
-    form = LoginForm()
-
-    if not form.validate_on_submit():
-        return render_template(
-            "login.html",
-            login_form=form,
-            register_form=RegistForm(),
-            register_success=None,
-            active_tab="signin"
-        )
-
-    email = form.email.data
-    password = form.password.data
-    remember_me = form.remember_me.data
-
-    user = User.query.filter_by(email=email).first()
-
-    # Prevent login with incorrect credentials
-    if not user or not check_password_hash(user.password, password):
-        form.email.errors.append("Invalid email or password.")
-        return render_template(
-            "login.html",
-            login_form=form,
-            register_form=RegistForm(),
-            register_success=None
-        )
-
-    # Store session data for authenticated user
-    session["user_id"] = user.id
-    session["user_name"] = user.name
-
-    if remember_me:
-        session.permanent = True
-
-    return redirect(url_for("users.index"))
-
-
 # ---------- LOGOUT ----------
 # Clears all session data and logs out the user.
 @users_bp.route("/logout")
 def logout():
-    session.clear()
+    logout_user()
     return redirect(url_for("users.index"))
 
 # ---------- PASSWORD RESET REQUEST ----------
 # Handles password reset requests.
 @users_bp.route("/reset_password", methods=["GET", "POST"])
 def reset_password_request():
-    if "user_id" in session:
-        return redirect(url_for("main.dashboard"))
+    if current_user.is_authenticated:
+        return redirect(url_for("users.index"))
     
     form = ResetPassRequestForm()
     if form.validate_on_submit():
@@ -195,8 +185,8 @@ If you did not make this request then simply ignore this email and no changes wi
 # Allows user to set a new password using a secure token.
 @users_bp.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    if "user_id" in session:
-        return redirect(url_for("main.dashboard"))
+    if not current_user.is_authenticated:
+        return redirect(url_for("users.index"))
     
     user = User.verify_reset_token(token)
     if not user:
@@ -221,41 +211,46 @@ def reset_password(token):
     return render_template("reset_password.html", form=form)
 
 @users_bp.route("/change-password", methods=["GET", "POST"])
+@login_required
 def change_password():
-    if "user_id" not in session:
-        return redirect(url_for("users.login"))
-
     form = ChangePassForm()
-    user = User.query.get(session["user_id"])
+    user = current_user
 
     if form.validate_on_submit():
+        # Check old password
         if not check_password_hash(user.password, form.old_password.data):
             flash("Current password is incorrect.", "danger")
             return redirect(url_for("users.change_password"))
 
+        # Update password
         user.password = generate_password_hash(form.new_password.data)
         db.session.commit()
 
-        flash("Password updated successfully!", "success")
-        session.clear()
-        return redirect(url_for("users.login"))
+        # Log out user after password change
+        logout_user()
+
+        # Show success message on the same page
+        flash("Password updated successfully! Please log in again.", "success")
+
+        # Render the same page with a button to sign in
+        return render_template("change_password.html", form=ChangePassForm(), show_login_button=True)
 
     return render_template("change_password.html", form=form)
 
 @users_bp.route("/delete-account", methods=["GET", "POST"])
+@login_required
 def delete_account():
-    if "user_id" not in session:
-        return redirect(url_for("users.login_page"))
-
     form = DeleteAccountForm()
-    user = User.query.get(session["user_id"])
+    user = current_user
 
     if form.validate_on_submit():
         db.session.delete(user)
         db.session.commit()
-        session.clear()
 
         flash("Your account has been permanently deleted.", "success")
-        return redirect(url_for("users.login_page"))
+        return redirect(url_for("users.login"))
+
+    form = DeleteAccountForm()
+    user = current_user
 
     return render_template("delete_account.html", form=form)
