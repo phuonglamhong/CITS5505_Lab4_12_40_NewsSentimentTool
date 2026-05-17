@@ -174,15 +174,40 @@ http://127.0.0.1:5000
 
 ### Run All Unit Tests
 
-```
+```bash
 python -m unittest discover
 ```
 
 ### Run Competitor Analysis Tests Only
 
-```
+```bash
 python -m unittest tests.test_competitor
 ```
+
+### Selenium Testing
+
+Install Selenium:
+
+```bash
+pip install selenium
+```
+
+Install pytest:
+
+```bash
+pip install pytest
+```
+
+Download a matching version of ChromeDriver:
+
+[https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
+
+Run Selenium tests:
+
+```bash
+pytest tests/seleniumTest
+```
+
 
 ## Database
 
