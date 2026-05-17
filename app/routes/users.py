@@ -82,7 +82,7 @@ def login():
         return redirect(next_page)
 
     # Default redirect
-    return redirect(url_for("users.index"))
+    return redirect(url_for("main.dashboard"))
 
 # ---------- REGISTER ----------
 # Handles new user registration.
