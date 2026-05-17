@@ -1,37 +1,80 @@
-<!-- This template provides a user interface for uploading text for sentiment analysis. -->
-{% extends "base.html" %} {% block title %}NewsSentiment — Upload{% endblock %}
-{% block body_class %}login-page{% endblock %} {% block content %}
-<div class="login-card">
-  <div class="login-logo">News<span>Sentiment</span></div>
-  <p class="login-subtitle">News sentiment intelligence platform</p>
+{% extends "base.html" %}
+{% block title %}Upload Article · BrandPulse{% endblock %}
 
-  <!-- TABS -->
-  <ul class="nav nav-tabs mb-4" id="uploadTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button
-        class="nav-link active"
-        id="manual-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#manual"
-        type="button"
-        role="tab"
-      >
-        Manual Upload
-      </button>
-    </li>
-  </ul>
+{% block content %}
+<div style="display:flex; min-height:100vh; background:var(--bg-light);">
 
-  <div class="tab-content" id="uploadTabContent">
-    <!-- =============================== -->
-    <!-- MANUAL UPLOAD TAB -->
-    <!-- =============================== -->
-    <div class="tab-pane active" id="manual" role="tabpanel">
-      <form method="POST" action="{{ url_for('upload.upload') }}">
-        {{ form.hidden_tag() }} {{ form.content.label(class="form-label
-        fw-semibold") }} {{ form.content(class="form-control mb-3", rows="8") }}
-        {{ form.submit(class="btn btn-primary w-100") }}
-      </form>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">Brand<span>Pulse</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="{{ url_for('main.feed') }}"><i class="fa-regular fa-newspaper"></i> Media Feed</a></li>
+      <li><a href="{{ url_for('upload.upload') }}" class="active"><i class="fa-solid fa-upload"></i> Upload to Analysis</a></li>
+      <li><a href="{{ url_for('competitor.competitor_page') }}"><i class="fa-solid fa-scale-balanced"></i> Competitors</a></li>
+      <li><a href="{{ url_for('comments.comments_page') }}"><i class="fa-regular fa-comments"></i> Discussion</a></li>
+    </ul>
+    <div class="sidebar-footer">BrandPulse © 2026</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Upload Article</div>
+      <div class="topbar-right">
+        <span style="font-size:0.88rem;">{{ current_user.name }}</span>
+        <a href="{{ url_for('users.logout') }}" style="font-size:0.82rem; color:var(--text-muted);">Sign out</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <div class="card p-4">
+
+        <h2 style="font-size:1.2rem; font-weight:700; margin-bottom:1.2rem; color:var(--text-main);">
+          Paste Article for Sentiment Analysis
+        </h2>
+
+        {% if error %}
+        <div class="alert alert-danger mb-3">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('upload.upload') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Brand / Company</label>
+            <input type="text" name="brand" class="form-control"
+                   placeholder="e.g. Apple, Google, Tesla" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Article Title</label>
+            <input type="text" name="title" class="form-control"
+                   placeholder="Enter article headline" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Article Content</label>
+            <textarea name="content" class="form-control" rows="10"
+                      placeholder="Paste full article text here..." required></textarea>
+          </div>
+
+          <button type="submit"
+                  class="btn btn-primary w-100"
+                  style="background:var(--primary); border:none; border-radius:10px; padding:10px;">
+            Analyse Article
+          </button>
+
+        </form>
+      </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
 {% endblock %}
