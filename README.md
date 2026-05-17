@@ -11,242 +11,122 @@ A web-based news sentiment monitoring platform built with Flask.
 | 24453423   | Hong Phuong Lam | phuonglamhong    |
 | 24717854   | K Ishwari Raj   | Kishwari         |
 
-## Project Overview
+## What is this?
 
-BrandPulse is a web-based sentiment monitoring platform that helps users track public opinion, compare competitor sentiment trends, and interact with media content through an intuitive dashboard interface.
+BrandPulse is a web app that lets you paste in news articles and automatically analyse whether the coverage is positive, negative, or neutral. You can track multiple brands, compare their sentiment over time, and discuss findings with your team.
 
-The application classifies content into positive, neutral and negative sentiment categories and visualises results through interactive charts, dashboards and discussion features.
+Built with Flask, SQLite, and TextBlob for NLP sentiment analysis.
 
-The system follows a client-server architecture using Flask on the backend and HTML, CSS, JavaScript, Bootstrap and Tailwind CSS on the frontend.
+---
 
 ## Features
 
-* Interactive sentiment dashboard
-* Competitor sentiment comparison
-* News media feed
-* User authentication system
-* Comment and collaboration functionality
-* Responsive mobile-friendly interface
-* Dynamic frontend rendering using JavaScript and Fetch API
-* Persistent SQLite database storage
-* Flask Blueprints for modular backend structure
-* Unit testing for backend routes and models
+- Register and log in with a role (Manager, Analyst, or Viewer)
+- Upload news articles and get instant sentiment analysis
+- Dashboard with sentiment stats and recent articles
+- Competitor page to compare brands side by side with charts
+- Discussion page with threaded comments and likes
+- Managers can delete articles and comments; Viewers are read-only
+
+---
 
 ## Tech Stack
 
-### Frontend
+**Frontend:** HTML, CSS, JavaScript, Bootstrap 5, Tailwind CSS, Chart.js
 
-* HTML5
-* CSS3
-* JavaScript
-* Bootstrap 5
-* Tailwind CSS
-* Chart.js
+**Backend:** Flask, Flask-Login, Flask-WTF, Flask-SQLAlchemy, Flask-Migrate, TextBlob
 
-### Backend
+**Database:** SQLite via SQLAlchemy ORM
 
-* Flask
-* Flask-WTF
-* Flask-SQLAlchemy
-* Flask-Mail
+**Testing:** pytest (unit tests) + Selenium (browser tests)
 
-### Database
+---
 
-* SQLite
-* SQLAlchemy ORM
+## Getting Started
 
-### Testing
-
-* Python unittest
-
-## Design Principles
-
-The application was designed with a focus on:
-
-* Responsive user experience
-* Clear data visualisation
-* Modular backend architecture
-* Maintainable frontend structure
-* Scalable Flask application design
-
-## Project Structure
-
-```
-app/
-│
-├── migrations/
-│
-├── models/
-│   ├── article.py
-│   ├── comment.py
-│   └── user.py
-│
-├── routes/
-│   ├── comments.py
-│   ├── competitor.py
-│   ├── main.py
-│   └── users.py
-│
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── images/
-│
-├── templates/
-│
-├── tests/
-│
-├── instance/
-│
-├── requirements.txt
-└── run.py
-```
-
-## Installation and Setup
-
-### 1. Clone the Repository
-
-```
+**1. Clone the repo**
+```bash
 git clone https://github.com/phuonglamhong/CITS5505_Lab4_12_40_NewsSentimentTool.git
 cd CITS5505_Lab4_12_40_NewsSentimentTool
 ```
 
-### 2. Create a Virtual Environment
-
-#### Mac/Linux
-
-```
+**2. Create a virtual environment**
+```bash
+# Mac/Linux
 python3 -m venv venv
 source venv/bin/activate
-```
 
-#### Windows
-
-```
+# Windows
 python -m venv venv
 venv\Scripts\activate
 ```
 
-### 3. Install Required Dependencies
-
-```
+**3. Install dependencies**
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Database Migration
+**4. Set up environment variables**
 
-For first-time setup:
-
+Create a `.env` file in the project root:
 ```
-flask db init
-```
-
-Run migrations:
-
-```
-flask db migrate
-flask db upgrade
+SECRET_KEY=your-secret-key-here
 ```
 
-### 5. Run the Application
-
-The application can be started using either of the following commands:
-
-```
-flask run
-```
-
-OR
-
-```
+**5. Run the app**
+```bash
 python run.py
 ```
 
-### 6. Open the Application
+Then open `http://127.0.0.1:5000` in your browser. Register an account to get started.
 
-Open the following URL in your browser:
-
-```
-http://127.0.0.1:5000
-```
+---
 
 ## Running Tests
 
-### Run All Unit Tests
-
+**Unit tests (17 tests)**
 ```bash
-python -m unittest discover
+python -m pytest app/tests/test_app.py -v
 ```
 
-### Run Competitor Analysis Tests Only
+**Selenium browser tests (7 tests)**
 
+Start the server first, then in a new terminal:
 ```bash
-python -m unittest tests.test_competitor
+python -m pytest app/tests/test_selenium.py -v
 ```
 
-### Selenium Testing
+Requires Google Chrome to be installed.
 
-Install Selenium:
+---
 
-```bash
-pip install selenium
+## Security
+
+- Passwords stored as salted hashes
+- CSRF protection on all forms
+- Session management via Flask-Login
+- Secret key stored in `.env`
+
+---
+
+## Project Structure
+
+```text
+app/
+├── models/        # database models
+├── routes/        # Flask blueprints
+├── static/        # CSS and JS
+├── templates/     # HTML templates
+├── tests/         # unit and selenium tests
+└── utility/       # sentiment analysis utils
+migrations/
+run.py
+requirements.txt
 ```
 
-Install pytest:
+---
 
-```bash
-pip install pytest
-```
+Developed for **CITS3403 — Agile Web Development**, The University of Western Australia © 2026
 
-Download a matching version of ChromeDriver:
-
-[https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
-
-Run Selenium tests:
-
-```bash
-pytest tests/seleniumTest
-```
-
-
-## Database
-
-The application uses SQLite with SQLAlchemy ORM for persistent data storage.
-
-Database migrations are managed using Flask-Migrate.
-
-## Security Features
-
-* Password hashing
-* CSRF protection using Flask-WTF
-* Secure Flask configuration
-
-## Development Workflow
-
-The project followed an Agile development workflow using:
-
-* Git branches
-* Pull requests
-* GitHub Issues
-* Code reviews
-* Incremental feature development
-* Regular commits with descriptive commit messages
-
-## Future Improvements
-
-* Real-time sentiment tracking
-* AI-generated article summaries
-* Notification system
-* Advanced search and filtering
-* Dark mode support
-
-## Screenshots
-
-![Competitor Analysis](static/images/competitor-analysis.png)
-
-This project was developed as part of:
-
-CITS5505 — Agile Web Development
-The University of Western Australia
 
 
